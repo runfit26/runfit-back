@@ -4,6 +4,9 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
   docker:
     compose:
       enabled: false
@@ -11,6 +14,11 @@ spring:
 springdoc:
   server-url: ${SERVER_URL}
   server-description: "배포 서버"
+
+jwt:
+  access:
+    secret: ${JWT_ACCESS_SECRET}
+    expiration: ${JWT_ACCESS_EXPIRED}
 
 logging:
   level:

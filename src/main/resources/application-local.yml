@@ -4,9 +4,17 @@ spring:
     username: root
     password: verysecret
     driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
   docker:
     compose:
       lifecycle-management: start_only
+
+jwt:
+  access:
+    secret: localtest-dev-jwt-access-secret-key
+    expiration: 3600000
 
 logging:
   level:
