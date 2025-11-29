@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3307/runfit
+    username: root
+    password: verysecret
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  docker:
+    compose:
+      lifecycle-management: start_only
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type.descriptor.sql.BasicBinder: trace
