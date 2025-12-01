@@ -13,6 +13,8 @@ import com.runfit.domain.session.controller.dto.response.SessionDetailResponse;
 import com.runfit.domain.session.controller.dto.response.SessionJoinResponse;
 import com.runfit.domain.session.controller.dto.response.SessionLikeResponse;
 import com.runfit.domain.session.controller.dto.response.SessionListResponse;
+import com.runfit.domain.session.controller.dto.response.SessionParticipantResponse;
+import com.runfit.domain.session.controller.dto.response.SessionParticipantsResponse;
 import com.runfit.domain.session.controller.dto.response.SessionResponse;
 import com.runfit.domain.session.entity.Session;
 import com.runfit.domain.session.entity.SessionLike;
@@ -22,6 +24,7 @@ import com.runfit.domain.session.repository.SessionParticipantRepository;
 import com.runfit.domain.session.repository.SessionRepository;
 import com.runfit.domain.user.entity.User;
 import com.runfit.domain.user.repository.UserRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -146,6 +149,34 @@ public class SessionService {
         sessionLikeRepository.delete(sessionLike);
 
         return SessionLikeResponse.unliked();
+    }
+
+    @Transactional(readOnly = true)
+    public SessionParticipantsResponse getSessionParticipants(Long sessionId) {
+        Session session = sessionRepository.findByIdAndNotDeleted(sessionId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.SESSION_NOT_FOUND));
+
+        Long crewId = session.getCrew().getId();
+
+        List<SessionParticipant> participants = sessionParticipantRepository.findAllBySessionIdWithUser(sessionId);
+
+        List<SessionParticipantResponse> participantResponses = participants.stream()
+            .map(sp -> {
+                CrewRole role = membershipRepository.findByUserUserIdAndCrewId(sp.getUser().getUserId(), crewId)
+                    .map(Membership::getRole)
+                    .orElse(CrewRole.MEMBER);
+
+                return new SessionParticipantResponse(
+                    sp.getUser().getUserId(),
+                    sp.getUser().getName(),
+                    sp.getUser().getImage(),
+                    role,
+                    sp.getJoinedAt()
+                );
+            })
+            .toList();
+
+        return SessionParticipantsResponse.of(participantResponses);
     }
 
     private User findUserById(Long userId) {

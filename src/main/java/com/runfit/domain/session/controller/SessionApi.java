@@ -8,6 +8,7 @@ import com.runfit.domain.session.controller.dto.response.SessionDetailResponse;
 import com.runfit.domain.session.controller.dto.response.SessionJoinResponse;
 import com.runfit.domain.session.controller.dto.response.SessionLikeResponse;
 import com.runfit.domain.session.controller.dto.response.SessionListResponse;
+import com.runfit.domain.session.controller.dto.response.SessionParticipantsResponse;
 import com.runfit.domain.session.controller.dto.response.SessionResponse;
 import com.runfit.domain.session.entity.SessionLevel;
 import com.runfit.domain.session.entity.SessionStatus;
@@ -108,6 +109,15 @@ public interface SessionApi {
     })
     ResponseEntity<ResponseWrapper<SessionLikeResponse>> unlikeSession(
         @AuthenticationPrincipal AuthUser user,
+        @Parameter(description = "세션 ID") @PathVariable Long sessionId
+    );
+
+    @Operation(summary = "세션 참가자 목록 조회", description = "해당 세션에 참가 신청한 사용자 목록을 조회합니다.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "조회 성공"),
+        @ApiResponse(responseCode = "404", description = "세션 없음")
+    })
+    ResponseEntity<ResponseWrapper<SessionParticipantsResponse>> getSessionParticipants(
         @Parameter(description = "세션 ID") @PathVariable Long sessionId
     );
 }

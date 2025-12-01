@@ -17,6 +17,7 @@ import com.runfit.domain.session.controller.dto.request.SessionCreateRequest;
 import com.runfit.domain.session.controller.dto.response.SessionDetailResponse;
 import com.runfit.domain.session.controller.dto.response.SessionJoinResponse;
 import com.runfit.domain.session.controller.dto.response.SessionLikeResponse;
+import com.runfit.domain.session.controller.dto.response.SessionParticipantsResponse;
 import com.runfit.domain.session.controller.dto.response.SessionResponse;
 import com.runfit.domain.session.entity.Session;
 import com.runfit.domain.session.entity.SessionLevel;
@@ -28,6 +29,7 @@ import com.runfit.domain.session.repository.SessionRepository;
 import com.runfit.domain.user.entity.User;
 import com.runfit.domain.user.repository.UserRepository;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -392,6 +394,69 @@ class SessionServiceTest {
             assertThatThrownBy(() -> sessionService.unlikeSession(2L, 1L))
                 .isInstanceOf(BusinessException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.SESSION_LIKE_NOT_FOUND);
+        }
+    }
+
+    @Nested
+    @DisplayName("세션 참가자 목록 조회")
+    class GetSessionParticipants {
+
+        @Test
+        @DisplayName("성공")
+        void success() {
+            // given
+            SessionParticipant participant1 = SessionParticipant.create(session, hostUser);
+            ReflectionTestUtils.setField(participant1, "joinedAt", LocalDateTime.now().minusDays(2));
+
+            SessionParticipant participant2 = SessionParticipant.create(session, participantUser);
+            ReflectionTestUtils.setField(participant2, "joinedAt", LocalDateTime.now().minusDays(1));
+
+            given(sessionRepository.findByIdAndNotDeleted(1L)).willReturn(Optional.of(session));
+            given(sessionParticipantRepository.findAllBySessionIdWithUser(1L))
+                .willReturn(List.of(participant1, participant2));
+            given(membershipRepository.findByUserUserIdAndCrewId(1L, 1L))
+                .willReturn(Optional.of(staffMembership));
+            given(membershipRepository.findByUserUserIdAndCrewId(2L, 1L))
+                .willReturn(Optional.of(memberMembership));
+
+            // when
+            SessionParticipantsResponse response = sessionService.getSessionParticipants(1L);
+
+            // then
+            assertThat(response.totalCount()).isEqualTo(2);
+            assertThat(response.participants()).hasSize(2);
+            assertThat(response.participants().get(0).userId()).isEqualTo(1L);
+            assertThat(response.participants().get(0).role()).isEqualTo(CrewRole.STAFF);
+            assertThat(response.participants().get(1).userId()).isEqualTo(2L);
+            assertThat(response.participants().get(1).role()).isEqualTo(CrewRole.MEMBER);
+        }
+
+        @Test
+        @DisplayName("성공 - 참가자 없음")
+        void success_noParticipants() {
+            // given
+            given(sessionRepository.findByIdAndNotDeleted(1L)).willReturn(Optional.of(session));
+            given(sessionParticipantRepository.findAllBySessionIdWithUser(1L))
+                .willReturn(List.of());
+
+            // when
+            SessionParticipantsResponse response = sessionService.getSessionParticipants(1L);
+
+            // then
+            assertThat(response.totalCount()).isEqualTo(0);
+            assertThat(response.participants()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("실패 - 세션 없음")
+        void fail_sessionNotFound() {
+            // given
+            given(sessionRepository.findByIdAndNotDeleted(999L)).willReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> sessionService.getSessionParticipants(999L))
+                .isInstanceOf(BusinessException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.SESSION_NOT_FOUND);
         }
     }
 }

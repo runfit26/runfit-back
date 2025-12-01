@@ -38,7 +38,12 @@ public enum ErrorCode {
     ALREADY_JOINED_SESSION(HttpStatus.BAD_REQUEST, "이미 세션에 참여한 사용자입니다."),
     NOT_SESSION_PARTICIPANT(HttpStatus.BAD_REQUEST, "세션에 참여하지 않은 사용자입니다."),
     ALREADY_LIKED_SESSION(HttpStatus.BAD_REQUEST, "이미 찜한 세션입니다."),
-    SESSION_LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "찜한 세션을 찾을 수 없습니다.");
+    SESSION_LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "찜한 세션을 찾을 수 없습니다."),
+
+    // Review
+    REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "리뷰를 찾을 수 없습니다."),
+    ALREADY_REVIEWED_SESSION(HttpStatus.BAD_REQUEST, "이미 해당 세션에 리뷰를 작성하셨습니다."),
+    REVIEW_FORBIDDEN(HttpStatus.FORBIDDEN, "리뷰를 삭제할 권한이 없습니다.");
 
     private final HttpStatus status;
     private final String message;

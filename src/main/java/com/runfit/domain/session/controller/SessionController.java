@@ -9,6 +9,7 @@ import com.runfit.domain.session.controller.dto.response.SessionDetailResponse;
 import com.runfit.domain.session.controller.dto.response.SessionJoinResponse;
 import com.runfit.domain.session.controller.dto.response.SessionLikeResponse;
 import com.runfit.domain.session.controller.dto.response.SessionListResponse;
+import com.runfit.domain.session.controller.dto.response.SessionParticipantsResponse;
 import com.runfit.domain.session.controller.dto.response.SessionResponse;
 import com.runfit.domain.session.entity.SessionLevel;
 import com.runfit.domain.session.entity.SessionStatus;
@@ -115,6 +116,15 @@ public class SessionController implements SessionApi {
         @PathVariable Long sessionId
     ) {
         SessionLikeResponse response = sessionService.unlikeSession(user.userId(), sessionId);
+        return ResponseEntity.ok(ResponseWrapper.success(response));
+    }
+
+    @Override
+    @GetMapping("/{sessionId}/participants")
+    public ResponseEntity<ResponseWrapper<SessionParticipantsResponse>> getSessionParticipants(
+        @PathVariable Long sessionId
+    ) {
+        SessionParticipantsResponse response = sessionService.getSessionParticipants(sessionId);
         return ResponseEntity.ok(ResponseWrapper.success(response));
     }
 }
