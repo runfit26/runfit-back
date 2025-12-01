@@ -20,7 +20,16 @@ public enum ErrorCode {
 
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 회원입니다."),
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "올바르지 않은 요청입니다."),
-    ALREADY_EXISTS_EMAIL(HttpStatus.BAD_REQUEST, "이미 사용중인 이메일입니다.");
+    ALREADY_EXISTS_EMAIL(HttpStatus.BAD_REQUEST, "이미 사용중인 이메일입니다."),
+
+    // Crew
+    CREW_NOT_FOUND(HttpStatus.NOT_FOUND, "크루를 찾을 수 없습니다."),
+
+    // Membership
+    MEMBERSHIP_NOT_FOUND(HttpStatus.NOT_FOUND, "크루 멤버십을 찾을 수 없습니다."),
+    MEMBERSHIP_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 해당 크루에 가입되어 있습니다."),
+    CREW_ROLE_FORBIDDEN(HttpStatus.FORBIDDEN, "크루 역할 변경 권한이 없습니다."),
+    LEADER_CANNOT_LEAVE(HttpStatus.BAD_REQUEST, "크루장은 탈퇴 전에 리더 권한을 위임해야 합니다.");
 
     private final HttpStatus status;
     private final String message;

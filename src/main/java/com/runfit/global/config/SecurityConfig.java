@@ -33,11 +33,19 @@ public class SecurityConfig {
     private final ObjectMapper objectMapper;
 
 
-    private final String[] readOnlyUrl = {
+    private final String[] readOnlyPublicUrl = {
         "/favicon.ico",
         "/api-docs/**",
         "/v3/api-docs/**",
         "/swagger-ui/**", "/swagger",
+    };
+
+    private final String[] crewPublicUrl = {
+        "/api/crews",
+        "/api/crews/{crewId}",
+        "/api/crews/{crewId}/members",
+        "/api/crews/{crewId}/members/count",
+        "/api/crews/{crewId}/members/{userId}/role",
     };
 
     @Bean
@@ -54,7 +62,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(authorizeHttpRequests ->
                 authorizeHttpRequests
                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                    .requestMatchers(HttpMethod.GET, readOnlyUrl).permitAll()
+                    .requestMatchers(HttpMethod.GET, readOnlyPublicUrl).permitAll()
+                    .requestMatchers(HttpMethod.GET, crewPublicUrl).permitAll()
                     .requestMatchers(HttpMethod.POST, "/auth/signup", "/auth/signin").permitAll()
                     .anyRequest().authenticated())
             .exceptionHandling(exception ->
