@@ -28,33 +28,33 @@ public class Crew extends SoftDeleteEntity {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "region")
-    private String region;
+    @Column(name = "city")
+    private String city;
 
     @Column(name = "image")
     private String image;
 
     @Builder
-    private Crew(String name, String description, String region, String image) {
+    private Crew(String name, String description, String city, String image) {
         this.name = name;
         this.description = description;
-        this.region = region;
+        this.city = city;
         this.image = image;
     }
 
-    public static Crew create(String name, String description, String region, String image) {
+    public static Crew create(String name, String description, String city, String image) {
         return Crew.builder()
             .name(name)
             .description(description)
-            .region(region)
+            .city(city)
             .image(image)
             .build();
     }
 
-    public void update(String name, String description, String region, String image) {
+    public void update(String name, String description, String city, String image) {
         this.name = name;
         this.description = description;
-        this.region = region;
+        this.city = city;
         this.image = image;
     }
 }

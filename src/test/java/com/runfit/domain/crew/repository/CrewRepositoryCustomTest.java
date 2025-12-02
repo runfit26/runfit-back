@@ -79,7 +79,7 @@ class CrewRepositoryCustomTest {
 
         // then
         assertThat(result.getContent()).hasSize(2);
-        assertThat(result.getContent()).allMatch(crew -> crew.region().equals("서울"));
+        assertThat(result.getContent()).allMatch(crew -> crew.city().equals("서울"));
     }
 
     @Test

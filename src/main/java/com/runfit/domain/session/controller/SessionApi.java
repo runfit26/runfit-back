@@ -4,6 +4,7 @@ import com.runfit.common.response.ResponseWrapper;
 import com.runfit.common.response.SliceResponse;
 import com.runfit.domain.auth.model.AuthUser;
 import com.runfit.domain.session.controller.dto.request.SessionCreateRequest;
+import com.runfit.domain.session.controller.dto.request.SessionUpdateRequest;
 import com.runfit.domain.session.controller.dto.response.SessionDetailResponse;
 import com.runfit.domain.session.controller.dto.response.SessionJoinResponse;
 import com.runfit.domain.session.controller.dto.response.SessionLikeResponse;
@@ -119,5 +120,18 @@ public interface SessionApi {
     })
     ResponseEntity<ResponseWrapper<SessionParticipantsResponse>> getSessionParticipants(
         @Parameter(description = "세션 ID") @PathVariable Long sessionId
+    );
+
+    @Operation(summary = "세션 정보 수정", description = "세션 정보를 수정합니다. 해당 크루의 STAFF 이상만 가능합니다.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "수정 성공"),
+        @ApiResponse(responseCode = "401", description = "인증 필요"),
+        @ApiResponse(responseCode = "403", description = "권한 없음 (STAFF 이상만 가능)"),
+        @ApiResponse(responseCode = "404", description = "세션 없음")
+    })
+    ResponseEntity<ResponseWrapper<SessionResponse>> updateSession(
+        @AuthenticationPrincipal AuthUser user,
+        @Parameter(description = "세션 ID") @PathVariable Long sessionId,
+        @RequestBody SessionUpdateRequest request
     );
 }

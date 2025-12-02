@@ -1,5 +1,6 @@
 package com.runfit.domain.crew.controller;
 
+import com.runfit.common.response.PageResponse;
 import com.runfit.common.response.ResponseWrapper;
 import com.runfit.common.response.SliceResponse;
 import com.runfit.domain.auth.model.AuthUser;
@@ -15,6 +16,7 @@ import com.runfit.domain.crew.controller.dto.response.MemberCountResponse;
 import com.runfit.domain.crew.controller.dto.response.MemberRoleResponse;
 import com.runfit.domain.crew.controller.dto.response.MembershipResponse;
 import com.runfit.domain.crew.controller.dto.response.RoleChangeResponse;
+import com.runfit.domain.review.controller.dto.response.CrewReviewResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -46,7 +48,7 @@ public interface CrewApi {
     ResponseEntity<ResponseWrapper<SliceResponse<CrewListResponse>>> searchCrews(
         @Parameter(description = "페이지 번호 (0부터 시작)") @RequestParam(defaultValue = "0") int page,
         @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "20") int size,
-        @Parameter(description = "지역 필터") @RequestParam(required = false) String region,
+        @Parameter(description = "지역 필터") @RequestParam(required = false) String city,
         @Parameter(description = "크루명 검색어") @RequestParam(required = false) String keyword,
         @Parameter(description = "정렬 (createdAtDesc, memberCountDesc)") @RequestParam(required = false) String sort
     );
@@ -171,5 +173,16 @@ public interface CrewApi {
     ResponseEntity<ResponseWrapper<String>> leaveCrew(
         @AuthenticationPrincipal AuthUser user,
         @Parameter(description = "크루 ID") @PathVariable Long crewId
+    );
+
+    @Operation(summary = "크루 리뷰 목록 조회", description = "특정 크루에서 진행된 세션들의 리뷰 목록을 조회합니다.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "조회 성공"),
+        @ApiResponse(responseCode = "404", description = "크루 없음")
+    })
+    ResponseEntity<ResponseWrapper<PageResponse<CrewReviewResponse>>> getCrewReviews(
+        @Parameter(description = "크루 ID") @PathVariable Long crewId,
+        @Parameter(description = "페이지 번호 (0부터 시작)") @RequestParam(defaultValue = "0") int page,
+        @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") int size
     );
 }

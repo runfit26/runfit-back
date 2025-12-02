@@ -47,7 +47,7 @@ public class CrewService {
         Crew crew = Crew.create(
             request.name(),
             request.description(),
-            request.region(),
+            request.city(),
             request.image()
         );
         Crew savedCrew = crewRepository.save(crew);
@@ -78,7 +78,7 @@ public class CrewService {
         crew.update(
             request.name(),
             request.description(),
-            request.region(),
+            request.city(),
             request.image()
         );
 

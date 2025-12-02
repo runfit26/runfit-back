@@ -7,7 +7,7 @@ public record CrewResponse(
     Long id,
     String name,
     String description,
-    String region,
+    String city,
     String image,
     LocalDateTime createdAt
 ) {
@@ -16,7 +16,7 @@ public record CrewResponse(
             crew.getId(),
             crew.getName(),
             crew.getDescription(),
-            crew.getRegion(),
+            crew.getCity(),
             crew.getImage(),
             crew.getCreatedAt()
         );

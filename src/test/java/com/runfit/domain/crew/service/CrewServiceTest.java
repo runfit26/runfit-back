@@ -163,7 +163,7 @@ class CrewServiceTest {
 
             // then
             assertThat(response.name()).isEqualTo("수정된 이름");
-            assertThat(response.region()).isEqualTo("부산");
+            assertThat(response.city()).isEqualTo("부산");
         }
 
         @Test

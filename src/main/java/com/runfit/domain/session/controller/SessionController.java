@@ -5,6 +5,7 @@ import com.runfit.common.response.SliceResponse;
 import com.runfit.domain.auth.model.AuthUser;
 import com.runfit.domain.session.controller.dto.request.SessionCreateRequest;
 import com.runfit.domain.session.controller.dto.request.SessionSearchCondition;
+import com.runfit.domain.session.controller.dto.request.SessionUpdateRequest;
 import com.runfit.domain.session.controller.dto.response.SessionDetailResponse;
 import com.runfit.domain.session.controller.dto.response.SessionJoinResponse;
 import com.runfit.domain.session.controller.dto.response.SessionLikeResponse;
@@ -24,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -125,6 +127,17 @@ public class SessionController implements SessionApi {
         @PathVariable Long sessionId
     ) {
         SessionParticipantsResponse response = sessionService.getSessionParticipants(sessionId);
+        return ResponseEntity.ok(ResponseWrapper.success(response));
+    }
+
+    @Override
+    @PatchMapping("/{sessionId}")
+    public ResponseEntity<ResponseWrapper<SessionResponse>> updateSession(
+        @AuthenticationPrincipal AuthUser user,
+        @PathVariable Long sessionId,
+        @Valid @RequestBody SessionUpdateRequest request
+    ) {
+        SessionResponse response = sessionService.updateSession(user.userId(), sessionId, request);
         return ResponseEntity.ok(ResponseWrapper.success(response));
     }
 }

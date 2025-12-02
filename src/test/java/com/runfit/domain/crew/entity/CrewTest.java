@@ -13,16 +13,16 @@ class CrewTest {
         // given
         String name = "잠실 러닝 크루";
         String description = "잠실에서 함께 달리는 크루입니다.";
-        String region = "서울";
+        String city = "서울";
         String image = "https://example.com/crew.jpg";
 
         // when
-        Crew crew = Crew.create(name, description, region, image);
+        Crew crew = Crew.create(name, description, city, image);
 
         // then
         assertThat(crew.getName()).isEqualTo(name);
         assertThat(crew.getDescription()).isEqualTo(description);
-        assertThat(crew.getRegion()).isEqualTo(region);
+        assertThat(crew.getCity()).isEqualTo(city);
         assertThat(crew.getImage()).isEqualTo(image);
         assertThat(crew.isDeleted()).isFalse();
     }
@@ -35,16 +35,16 @@ class CrewTest {
 
         String newName = "새 이름";
         String newDescription = "새 설명";
-        String newRegion = "부산";
+        String newCity = "부산";
         String newImage = "https://new.jpg";
 
         // when
-        crew.update(newName, newDescription, newRegion, newImage);
+        crew.update(newName, newDescription, newCity, newImage);
 
         // then
         assertThat(crew.getName()).isEqualTo(newName);
         assertThat(crew.getDescription()).isEqualTo(newDescription);
-        assertThat(crew.getRegion()).isEqualTo(newRegion);
+        assertThat(crew.getCity()).isEqualTo(newCity);
         assertThat(crew.getImage()).isEqualTo(newImage);
     }
 

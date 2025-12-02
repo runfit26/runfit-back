@@ -9,6 +9,7 @@ import com.runfit.domain.crew.repository.CrewRepository;
 import com.runfit.domain.crew.repository.MembershipRepository;
 import com.runfit.domain.session.controller.dto.request.SessionCreateRequest;
 import com.runfit.domain.session.controller.dto.request.SessionSearchCondition;
+import com.runfit.domain.session.controller.dto.request.SessionUpdateRequest;
 import com.runfit.domain.session.controller.dto.response.SessionDetailResponse;
 import com.runfit.domain.session.controller.dto.response.SessionJoinResponse;
 import com.runfit.domain.session.controller.dto.response.SessionLikeResponse;
@@ -149,6 +150,29 @@ public class SessionService {
         sessionLikeRepository.delete(sessionLike);
 
         return SessionLikeResponse.unliked();
+    }
+
+    @Transactional
+    public SessionResponse updateSession(Long userId, Long sessionId, SessionUpdateRequest request) {
+        Session session = findSessionById(sessionId);
+
+        validateStaffOrLeaderPermission(userId, session.getCrew().getId());
+
+        session.update(
+            request.name(),
+            request.description(),
+            request.image(),
+            request.location(),
+            request.sessionAt(),
+            request.registerBy(),
+            request.level(),
+            request.pace(),
+            request.maxParticipantCount()
+        );
+
+        long currentParticipantCount = sessionParticipantRepository.countBySession(session);
+
+        return SessionResponse.from(session, currentParticipantCount);
     }
 
     @Transactional(readOnly = true)

@@ -7,7 +7,7 @@ public record CrewListResponse(
     Long id,
     String name,
     String description,
-    String region,
+    String city,
     String image,
     long memberCount,
     LocalDateTime createdAt
@@ -17,7 +17,7 @@ public record CrewListResponse(
             crew.getId(),
             crew.getName(),
             crew.getDescription(),
-            crew.getRegion(),
+            crew.getCity(),
             crew.getImage(),
             memberCount,
             crew.getCreatedAt()

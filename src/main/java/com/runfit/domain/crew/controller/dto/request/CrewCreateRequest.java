@@ -8,7 +8,7 @@ public record CrewCreateRequest(
 
     String description,
 
-    String region,
+    String city,
 
     String image
 ) {

@@ -92,7 +92,7 @@ public class SessionRepositoryCustomImpl implements SessionRepositoryCustom {
     }
 
     private BooleanExpression cityEq(String city) {
-        return StringUtils.hasText(city) ? crew.region.eq(city) : null;
+        return StringUtils.hasText(city) ? crew.city.eq(city) : null;
     }
 
     private BooleanExpression crewIdEq(Long crewId) {

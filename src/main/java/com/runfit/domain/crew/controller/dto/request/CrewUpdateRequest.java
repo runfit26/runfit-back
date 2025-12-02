@@ -8,7 +8,7 @@ public record CrewUpdateRequest(
 
     String description,
 
-    String region,
+    String city,
 
     String image
 ) {

@@ -2,7 +2,9 @@ package com.runfit.domain.review.service;
 
 import com.runfit.common.exception.BusinessException;
 import com.runfit.common.exception.ErrorCode;
+import com.runfit.domain.crew.repository.CrewRepository;
 import com.runfit.domain.review.controller.dto.request.ReviewCreateRequest;
+import com.runfit.domain.review.controller.dto.response.CrewReviewResponse;
 import com.runfit.domain.review.controller.dto.response.ReviewDeleteResponse;
 import com.runfit.domain.review.controller.dto.response.ReviewResponse;
 import com.runfit.domain.review.entity.Review;
@@ -26,6 +28,7 @@ public class ReviewService {
     private final SessionRepository sessionRepository;
     private final SessionParticipantRepository sessionParticipantRepository;
     private final UserRepository userRepository;
+    private final CrewRepository crewRepository;
 
     @Transactional(readOnly = true)
     public Page<ReviewResponse> getSessionReviews(Long sessionId, Pageable pageable) {
@@ -36,6 +39,13 @@ public class ReviewService {
     @Transactional(readOnly = true)
     public Page<ReviewResponse> getMyReviews(Long userId, Pageable pageable) {
         return reviewRepository.findReviewsByUserId(userId, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<CrewReviewResponse> getCrewReviews(Long crewId, Pageable pageable) {
+        crewRepository.findByIdAndDeletedIsNull(crewId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.CREW_NOT_FOUND));
+        return reviewRepository.findReviewsByCrewId(crewId, pageable);
     }
 
     @Transactional

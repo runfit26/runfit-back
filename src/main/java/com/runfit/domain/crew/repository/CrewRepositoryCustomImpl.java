@@ -30,7 +30,7 @@ public class CrewRepositoryCustomImpl implements CrewRepositoryCustom {
                 crew.id,
                 crew.name,
                 crew.description,
-                crew.region,
+                crew.city,
                 crew.image,
                 membership.count(),
                 crew.createdAt
@@ -39,7 +39,7 @@ public class CrewRepositoryCustomImpl implements CrewRepositoryCustom {
             .leftJoin(membership).on(membership.crew.eq(crew))
             .where(
                 isNotDeleted(),
-                regionEq(condition.region()),
+                cityEq(condition.city()),
                 keywordContains(condition.keyword())
             )
             .groupBy(crew.id)
@@ -60,8 +60,8 @@ public class CrewRepositoryCustomImpl implements CrewRepositoryCustom {
         return crew.deleted.isNull();
     }
 
-    private BooleanExpression regionEq(String region) {
-        return StringUtils.hasText(region) ? crew.region.eq(region) : null;
+    private BooleanExpression cityEq(String city) {
+        return StringUtils.hasText(city) ? crew.city.eq(city) : null;
     }
 
     private BooleanExpression keywordContains(String keyword) {

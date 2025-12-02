@@ -1,5 +1,6 @@
 package com.runfit.domain.crew.controller;
 
+import com.runfit.common.response.PageResponse;
 import com.runfit.common.response.ResponseWrapper;
 import com.runfit.common.response.SliceResponse;
 import com.runfit.domain.auth.model.AuthUser;
@@ -17,9 +18,12 @@ import com.runfit.domain.crew.controller.dto.response.MemberRoleResponse;
 import com.runfit.domain.crew.controller.dto.response.MembershipResponse;
 import com.runfit.domain.crew.controller.dto.response.RoleChangeResponse;
 import com.runfit.domain.crew.service.CrewService;
+import com.runfit.domain.review.controller.dto.response.CrewReviewResponse;
+import com.runfit.domain.review.service.ReviewService;
 import jakarta.validation.Valid;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
@@ -40,6 +44,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class CrewController implements CrewApi {
 
     private final CrewService crewService;
+    private final ReviewService reviewService;
 
     @Override
     @PostMapping
@@ -57,11 +62,11 @@ public class CrewController implements CrewApi {
     public ResponseEntity<ResponseWrapper<SliceResponse<CrewListResponse>>> searchCrews(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "20") int size,
-        @RequestParam(required = false) String region,
+        @RequestParam(required = false) String city,
         @RequestParam(required = false) String keyword,
         @RequestParam(required = false) String sort
     ) {
-        CrewSearchCondition condition = CrewSearchCondition.of(region, keyword, sort);
+        CrewSearchCondition condition = CrewSearchCondition.of(city, keyword, sort);
         Slice<CrewListResponse> result = crewService.searchCrews(condition, PageRequest.of(page, size));
         return ResponseEntity.ok(ResponseWrapper.success(SliceResponse.from(result)));
     }
@@ -179,5 +184,16 @@ public class CrewController implements CrewApi {
     ) {
         crewService.leaveCrew(user.userId(), crewId);
         return ResponseEntity.ok(ResponseWrapper.success("크루를 탈퇴했습니다."));
+    }
+
+    @Override
+    @GetMapping("/{crewId}/reviews")
+    public ResponseEntity<ResponseWrapper<PageResponse<CrewReviewResponse>>> getCrewReviews(
+        @PathVariable Long crewId,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<CrewReviewResponse> result = reviewService.getCrewReviews(crewId, PageRequest.of(page, size));
+        return ResponseEntity.ok(ResponseWrapper.success(PageResponse.from(result)));
     }
 }
