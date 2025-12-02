@@ -229,6 +229,113 @@ class ReviewServiceTest {
     }
 
     @Nested
+    @DisplayName("세션 리뷰 목록 조회")
+    class GetSessionReviews {
+
+        @Test
+        @DisplayName("성공")
+        void success() {
+            // given
+            PageRequest pageable = PageRequest.of(0, 10);
+            ReviewResponse reviewResponse = new ReviewResponse(
+                1L, 1L, 1L, 1L, "테스트유저", null,
+                "좋았습니다!", 5, null, LocalDateTime.now()
+            );
+            Page<ReviewResponse> reviewPage = new PageImpl<>(
+                List.of(reviewResponse), pageable, 1
+            );
+
+            given(sessionRepository.findByIdAndNotDeleted(1L)).willReturn(Optional.of(session));
+            given(reviewRepository.findReviewsBySessionId(1L, pageable)).willReturn(reviewPage);
+
+            // when
+            Page<ReviewResponse> result = reviewService.getSessionReviews(1L, pageable);
+
+            // then
+            assertThat(result.getTotalElements()).isEqualTo(1);
+            assertThat(result.getContent()).hasSize(1);
+            assertThat(result.getContent().get(0).description()).isEqualTo("좋았습니다!");
+        }
+
+        @Test
+        @DisplayName("성공 - 리뷰 없음")
+        void success_noReviews() {
+            // given
+            PageRequest pageable = PageRequest.of(0, 10);
+            Page<ReviewResponse> emptyPage = new PageImpl<>(List.of(), pageable, 0);
+
+            given(sessionRepository.findByIdAndNotDeleted(1L)).willReturn(Optional.of(session));
+            given(reviewRepository.findReviewsBySessionId(1L, pageable)).willReturn(emptyPage);
+
+            // when
+            Page<ReviewResponse> result = reviewService.getSessionReviews(1L, pageable);
+
+            // then
+            assertThat(result.getTotalElements()).isEqualTo(0);
+            assertThat(result.getContent()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("실패 - 세션 없음")
+        void fail_sessionNotFound() {
+            // given
+            PageRequest pageable = PageRequest.of(0, 10);
+            given(sessionRepository.findByIdAndNotDeleted(999L)).willReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> reviewService.getSessionReviews(999L, pageable))
+                .isInstanceOf(BusinessException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.SESSION_NOT_FOUND);
+        }
+    }
+
+    @Nested
+    @DisplayName("내가 작성한 리뷰 목록 조회")
+    class GetMyReviews {
+
+        @Test
+        @DisplayName("성공")
+        void success() {
+            // given
+            PageRequest pageable = PageRequest.of(0, 10);
+            ReviewResponse reviewResponse = new ReviewResponse(
+                1L, 1L, 1L, 1L, "테스트유저", null,
+                "좋았습니다!", 5, null, LocalDateTime.now()
+            );
+            Page<ReviewResponse> reviewPage = new PageImpl<>(
+                List.of(reviewResponse), pageable, 1
+            );
+
+            given(reviewRepository.findReviewsByUserId(1L, pageable)).willReturn(reviewPage);
+
+            // when
+            Page<ReviewResponse> result = reviewService.getMyReviews(1L, pageable);
+
+            // then
+            assertThat(result.getTotalElements()).isEqualTo(1);
+            assertThat(result.getContent()).hasSize(1);
+            assertThat(result.getContent().get(0).userId()).isEqualTo(1L);
+        }
+
+        @Test
+        @DisplayName("성공 - 리뷰 없음")
+        void success_noReviews() {
+            // given
+            PageRequest pageable = PageRequest.of(0, 10);
+            Page<ReviewResponse> emptyPage = new PageImpl<>(List.of(), pageable, 0);
+
+            given(reviewRepository.findReviewsByUserId(1L, pageable)).willReturn(emptyPage);
+
+            // when
+            Page<ReviewResponse> result = reviewService.getMyReviews(1L, pageable);
+
+            // then
+            assertThat(result.getTotalElements()).isEqualTo(0);
+            assertThat(result.getContent()).isEmpty();
+        }
+    }
+
+    @Nested
     @DisplayName("크루 리뷰 목록 조회")
     class GetCrewReviews {
 

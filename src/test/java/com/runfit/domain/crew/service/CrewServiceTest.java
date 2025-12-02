@@ -17,6 +17,7 @@ import com.runfit.domain.crew.controller.dto.response.CrewMembersResponse;
 import com.runfit.domain.crew.controller.dto.response.CrewResponse;
 import com.runfit.domain.crew.controller.dto.response.LeaderChangeResponse;
 import com.runfit.domain.crew.controller.dto.response.MemberCountResponse;
+import com.runfit.domain.crew.controller.dto.response.MemberRoleResponse;
 import com.runfit.domain.crew.controller.dto.response.MembershipResponse;
 import com.runfit.domain.crew.controller.dto.response.RoleChangeResponse;
 import com.runfit.domain.crew.entity.Crew;
@@ -383,6 +384,155 @@ class CrewServiceTest {
             assertThatThrownBy(() -> crewService.leaveCrew(1L, 1L))
                 .isInstanceOf(BusinessException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.LEADER_CANNOT_LEAVE);
+        }
+    }
+
+    @Nested
+    @DisplayName("특정 사용자 역할 조회")
+    class GetMemberRole {
+
+        @Test
+        @DisplayName("성공")
+        void success() {
+            // given
+            given(crewRepository.findByIdAndDeletedIsNull(1L)).willReturn(Optional.of(crew));
+            given(membershipRepository.findByUserUserIdAndCrewId(2L, 1L)).willReturn(Optional.of(memberMembership));
+
+            // when
+            MemberRoleResponse response = crewService.getMemberRole(1L, 2L);
+
+            // then
+            assertThat(response.userId()).isEqualTo(2L);
+            assertThat(response.role()).isEqualTo(CrewRole.MEMBER);
+        }
+
+        @Test
+        @DisplayName("실패 - 크루 없음")
+        void fail_crewNotFound() {
+            // given
+            given(crewRepository.findByIdAndDeletedIsNull(999L)).willReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> crewService.getMemberRole(999L, 1L))
+                .isInstanceOf(BusinessException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.CREW_NOT_FOUND);
+        }
+
+        @Test
+        @DisplayName("실패 - 멤버십 없음")
+        void fail_membershipNotFound() {
+            // given
+            given(crewRepository.findByIdAndDeletedIsNull(1L)).willReturn(Optional.of(crew));
+            given(membershipRepository.findByUserUserIdAndCrewId(999L, 1L)).willReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> crewService.getMemberRole(1L, 999L))
+                .isInstanceOf(BusinessException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.MEMBERSHIP_NOT_FOUND);
+        }
+    }
+
+    @Nested
+    @DisplayName("크루 멤버 강퇴")
+    class KickMember {
+
+        @Test
+        @DisplayName("성공")
+        void success() {
+            // given
+            given(crewRepository.findByIdAndDeletedIsNull(1L)).willReturn(Optional.of(crew));
+            given(membershipRepository.findByUserUserIdAndCrewId(1L, 1L)).willReturn(Optional.of(leaderMembership));
+            given(membershipRepository.findByUserUserIdAndCrewId(2L, 1L)).willReturn(Optional.of(memberMembership));
+
+            // when
+            crewService.kickMember(1L, 1L, 2L);
+
+            // then
+            verify(membershipRepository).delete(memberMembership);
+        }
+
+        @Test
+        @DisplayName("실패 - 리더가 아닌 사용자")
+        void fail_notLeader() {
+            // given
+            given(crewRepository.findByIdAndDeletedIsNull(1L)).willReturn(Optional.of(crew));
+            given(membershipRepository.findByUserUserIdAndCrewId(2L, 1L)).willReturn(Optional.of(memberMembership));
+
+            // when & then
+            assertThatThrownBy(() -> crewService.kickMember(2L, 1L, 1L))
+                .isInstanceOf(BusinessException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.CREW_ROLE_FORBIDDEN);
+        }
+
+        @Test
+        @DisplayName("실패 - 리더 강퇴 시도")
+        void fail_cannotKickLeader() {
+            // given
+            given(crewRepository.findByIdAndDeletedIsNull(1L)).willReturn(Optional.of(crew));
+            given(membershipRepository.findByUserUserIdAndCrewId(1L, 1L)).willReturn(Optional.of(leaderMembership));
+
+            // when & then
+            assertThatThrownBy(() -> crewService.kickMember(1L, 1L, 1L))
+                .isInstanceOf(BusinessException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.CREW_ROLE_FORBIDDEN);
+        }
+
+        @Test
+        @DisplayName("실패 - 대상 멤버십 없음")
+        void fail_targetNotFound() {
+            // given
+            given(crewRepository.findByIdAndDeletedIsNull(1L)).willReturn(Optional.of(crew));
+            given(membershipRepository.findByUserUserIdAndCrewId(1L, 1L)).willReturn(Optional.of(leaderMembership));
+            given(membershipRepository.findByUserUserIdAndCrewId(999L, 1L)).willReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> crewService.kickMember(1L, 1L, 999L))
+                .isInstanceOf(BusinessException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.MEMBERSHIP_NOT_FOUND);
+        }
+    }
+
+    @Nested
+    @DisplayName("크루 삭제")
+    class DeleteCrew {
+
+        @Test
+        @DisplayName("성공")
+        void success() {
+            // given
+            given(crewRepository.findByIdAndDeletedIsNull(1L)).willReturn(Optional.of(crew));
+            given(membershipRepository.findByUserUserIdAndCrewId(1L, 1L)).willReturn(Optional.of(leaderMembership));
+
+            // when
+            crewService.deleteCrew(1L, 1L);
+
+            // then
+            assertThat(crew.getDeleted()).isNotNull();
+        }
+
+        @Test
+        @DisplayName("실패 - 리더가 아닌 사용자")
+        void fail_notLeader() {
+            // given
+            given(crewRepository.findByIdAndDeletedIsNull(1L)).willReturn(Optional.of(crew));
+            given(membershipRepository.findByUserUserIdAndCrewId(2L, 1L)).willReturn(Optional.of(memberMembership));
+
+            // when & then
+            assertThatThrownBy(() -> crewService.deleteCrew(2L, 1L))
+                .isInstanceOf(BusinessException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.CREW_ROLE_FORBIDDEN);
+        }
+
+        @Test
+        @DisplayName("실패 - 크루 없음")
+        void fail_crewNotFound() {
+            // given
+            given(crewRepository.findByIdAndDeletedIsNull(999L)).willReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> crewService.deleteCrew(1L, 999L))
+                .isInstanceOf(BusinessException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.CREW_NOT_FOUND);
         }
     }
 }
