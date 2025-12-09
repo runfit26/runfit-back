@@ -62,4 +62,25 @@ public class User extends SoftDeleteEntity {
         user.password = password;
         return user;
     }
+
+    public void update(String name, String image, String introduction, String city, Integer pace, List<String> styles) {
+        if (name != null) {
+            this.name = name;
+        }
+        if (image != null) {
+            this.image = image;
+        }
+        if (introduction != null) {
+            this.introduction = introduction;
+        }
+        if (city != null) {
+            this.city = city;
+        }
+        if (pace != null) {
+            this.pace = pace;
+        }
+        if (styles != null) {
+            this.styles = new ArrayList<>(styles);
+        }
+    }
 }
