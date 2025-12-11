@@ -70,7 +70,7 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.GET, readOnlyPublicUrl).permitAll()
                     .requestMatchers(HttpMethod.GET, crewPublicUrl).permitAll()
                     .requestMatchers(HttpMethod.GET, sessionPublicUrl).permitAll()
-                    .requestMatchers(HttpMethod.POST, "/api/auth/signup", "/api/auth/signin").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/auth/signup", "/api/auth/signin", "/api/auth/refresh").permitAll()
                     .anyRequest().authenticated())
             .exceptionHandling(exception ->
                 exception

@@ -13,8 +13,11 @@ spring:
 
 jwt:
   access:
-    secret: localtest-dev-jwt-access-secret-key
+    secret: localtest-dev-jwt-access-secret-key-must-be-at-least-32-characters
     expiration: 3600000
+  refresh:
+    secret: localtest-dev-jwt-refresh-secret-key-must-be-at-least-32-characters
+    expiration: 604800000
 
 logging:
   level:
