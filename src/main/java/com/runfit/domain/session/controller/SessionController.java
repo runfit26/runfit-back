@@ -19,6 +19,7 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
@@ -145,5 +146,15 @@ public class SessionController implements SessionApi {
     ) {
         SessionResponse response = sessionService.updateSession(user.userId(), sessionId, request);
         return ResponseEntity.ok(ResponseWrapper.success(response));
+    }
+
+    @Override
+    @DeleteMapping("/{sessionId}")
+    public ResponseEntity<ResponseWrapper<Map<String, String>>> deleteSession(
+        @AuthenticationPrincipal AuthUser user,
+        @PathVariable Long sessionId
+    ) {
+        sessionService.deleteSession(user.userId(), sessionId);
+        return ResponseEntity.ok(ResponseWrapper.success(Map.of("message", "세션이 삭제되었습니다.")));
     }
 }

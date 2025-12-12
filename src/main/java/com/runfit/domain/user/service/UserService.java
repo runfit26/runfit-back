@@ -4,7 +4,9 @@ import com.runfit.common.exception.BusinessException;
 import com.runfit.common.exception.ErrorCode;
 import com.runfit.domain.review.controller.dto.response.ReviewResponse;
 import com.runfit.domain.review.service.ReviewService;
+import com.runfit.domain.session.controller.dto.response.SessionListResponse;
 import com.runfit.domain.session.repository.SessionLikeRepository;
+import com.runfit.domain.session.repository.SessionRepository;
 import com.runfit.domain.user.controller.dto.request.UserUpdateRequest;
 import com.runfit.domain.user.controller.dto.response.LikedSessionResponse;
 import com.runfit.domain.user.controller.dto.response.UserProfileResponse;
@@ -24,6 +26,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final SessionLikeRepository sessionLikeRepository;
+    private final SessionRepository sessionRepository;
     private final ReviewService reviewService;
 
     @Transactional(readOnly = true)
@@ -60,6 +63,11 @@ public class UserService {
     @Transactional(readOnly = true)
     public Slice<LikedSessionResponse> getMyLikedSessions(Long userId, Pageable pageable) {
         return sessionLikeRepository.findLikedSessionsByUserId(userId, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Slice<SessionListResponse> getMyHostedSessions(Long userId, Pageable pageable) {
+        return sessionRepository.findMyHostedSessions(userId, pageable);
     }
 
     private User findUserById(Long userId) {

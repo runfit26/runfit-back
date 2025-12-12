@@ -5,6 +5,7 @@ import com.runfit.common.response.ResponseWrapper;
 import com.runfit.common.response.SliceResponse;
 import com.runfit.domain.auth.model.AuthUser;
 import com.runfit.domain.review.controller.dto.response.ReviewResponse;
+import com.runfit.domain.session.controller.dto.response.SessionListResponse;
 import com.runfit.domain.user.controller.dto.request.UserUpdateRequest;
 import com.runfit.domain.user.controller.dto.response.LikedSessionResponse;
 import com.runfit.domain.user.controller.dto.response.UserProfileResponse;
@@ -80,6 +81,17 @@ public class UserController implements UserApi {
         @RequestParam(defaultValue = "10") int size
     ) {
         Slice<LikedSessionResponse> result = userService.getMyLikedSessions(user.userId(), PageRequest.of(page, size));
+        return ResponseEntity.ok(ResponseWrapper.success(SliceResponse.from(result)));
+    }
+
+    @Override
+    @GetMapping("/me/sessions")
+    public ResponseEntity<ResponseWrapper<SliceResponse<SessionListResponse>>> getMyHostedSessions(
+        @AuthenticationPrincipal AuthUser user,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        Slice<SessionListResponse> result = userService.getMyHostedSessions(user.userId(), PageRequest.of(page, size));
         return ResponseEntity.ok(ResponseWrapper.success(SliceResponse.from(result)));
     }
 }

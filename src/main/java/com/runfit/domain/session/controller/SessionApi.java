@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -137,5 +138,17 @@ public interface SessionApi {
         @AuthenticationPrincipal AuthUser user,
         @Parameter(description = "세션 ID") @PathVariable Long sessionId,
         @RequestBody SessionUpdateRequest request
+    );
+
+    @Operation(summary = "세션 삭제", description = "세션을 삭제합니다. 세션 생성자만 삭제 가능합니다.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "삭제 성공"),
+        @ApiResponse(responseCode = "401", description = "인증 필요"),
+        @ApiResponse(responseCode = "403", description = "권한 없음 (세션 생성자만 가능)"),
+        @ApiResponse(responseCode = "404", description = "세션 없음")
+    })
+    ResponseEntity<ResponseWrapper<Map<String, String>>> deleteSession(
+        @AuthenticationPrincipal AuthUser user,
+        @Parameter(description = "세션 ID") @PathVariable Long sessionId
     );
 }

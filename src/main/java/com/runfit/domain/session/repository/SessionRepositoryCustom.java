@@ -8,4 +8,6 @@ import org.springframework.data.domain.Slice;
 public interface SessionRepositoryCustom {
 
     Slice<SessionListResponse> searchSessions(SessionSearchCondition condition, Long userId, Pageable pageable);
+
+    Slice<SessionListResponse> findMyHostedSessions(Long hostUserId, Pageable pageable);
 }
