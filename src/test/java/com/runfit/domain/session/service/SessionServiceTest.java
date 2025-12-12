@@ -562,4 +562,66 @@ class SessionServiceTest {
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.MEMBERSHIP_NOT_FOUND);
         }
     }
+
+    @Nested
+    @DisplayName("세션 삭제")
+    class DeleteSession {
+
+        @Test
+        @DisplayName("성공 - 세션 생성자가 삭제")
+        void success() {
+            // given
+            given(sessionRepository.findByIdWithCrewAndHostUser(1L)).willReturn(Optional.of(session));
+
+            // when
+            sessionService.deleteSession(1L, 1L);
+
+            // then
+            assertThat(session.isDeleted()).isTrue();
+        }
+
+        @Test
+        @DisplayName("실패 - 세션 없음")
+        void fail_sessionNotFound() {
+            // given
+            given(sessionRepository.findByIdWithCrewAndHostUser(999L)).willReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> sessionService.deleteSession(1L, 999L))
+                .isInstanceOf(BusinessException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.SESSION_NOT_FOUND);
+        }
+
+        @Test
+        @DisplayName("실패 - 권한 없음 (세션 생성자가 아님)")
+        void fail_notHostUser() {
+            // given
+            given(sessionRepository.findByIdWithCrewAndHostUser(1L)).willReturn(Optional.of(session));
+
+            // when & then
+            assertThatThrownBy(() -> sessionService.deleteSession(2L, 1L))
+                .isInstanceOf(BusinessException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.SESSION_DELETE_FORBIDDEN);
+        }
+    }
+
+    @Nested
+    @DisplayName("내가 만든 세션 목록 조회")
+    class GetMyHostedSessions {
+
+        @Test
+        @DisplayName("성공")
+        void success() {
+            // given
+            given(sessionRepository.findMyHostedSessions(any(Long.class), any()))
+                .willReturn(new org.springframework.data.domain.SliceImpl<>(List.of()));
+
+            // when
+            var result = sessionService.getMyHostedSessions(1L, org.springframework.data.domain.PageRequest.of(0, 10));
+
+            // then
+            assertThat(result).isNotNull();
+            verify(sessionRepository).findMyHostedSessions(1L, org.springframework.data.domain.PageRequest.of(0, 10));
+        }
+    }
 }

@@ -157,4 +157,60 @@ public class SessionRepositoryCustomImpl implements SessionRepositoryCustom {
             default -> session.createdAt.desc();
         };
     }
+
+    @Override
+    public Slice<SessionListResponse> findMyHostedSessions(Long hostUserId, Pageable pageable) {
+        List<SessionListResponse> content = queryFactory
+            .select(Projections.constructor(SessionListResponse.class,
+                session.id,
+                session.crew.id,
+                session.hostUser.userId,
+                session.name,
+                session.image,
+                session.city,
+                session.district,
+                Projections.constructor(CoordsResponse.class,
+                    session.latitude,
+                    session.longitude
+                ),
+                session.sessionAt,
+                session.registerBy,
+                session.level,
+                session.status,
+                session.pace,
+                session.maxParticipantCount,
+                ExpressionUtils.as(
+                    JPAExpressions.select(sessionParticipant.count())
+                        .from(sessionParticipant)
+                        .where(sessionParticipant.session.eq(session)),
+                    "currentParticipantCount"
+                ),
+                ExpressionUtils.as(
+                    JPAExpressions.selectOne()
+                        .from(sessionLike)
+                        .where(
+                            sessionLike.session.eq(session),
+                            sessionLike.user.userId.eq(hostUserId)
+                        ).exists(),
+                    "liked"
+                )
+            ))
+            .from(session)
+            .join(session.crew, crew)
+            .where(
+                isNotDeleted(),
+                session.hostUser.userId.eq(hostUserId)
+            )
+            .orderBy(session.createdAt.desc())
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize() + 1)
+            .fetch();
+
+        boolean hasNext = content.size() > pageable.getPageSize();
+        if (hasNext) {
+            content.remove(content.size() - 1);
+        }
+
+        return new SliceImpl<>(content, pageable, hasNext);
+    }
 }

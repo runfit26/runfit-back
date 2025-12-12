@@ -22,3 +22,9 @@ jwt:
   access:
     secret: test-jwt-access-secret-key-for-testing-purposes-only
     expiration: 3600000
+  refresh:
+    secret: test-jwt-refresh-secret-key-for-testing-purposes-only
+    expiration: 604800000
+
+cors:
+  allowed-origins: http://localhost:8080,http://localhost:3000

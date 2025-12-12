@@ -209,6 +209,23 @@ public class SessionService {
         return SessionParticipantsResponse.of(participantResponses);
     }
 
+    @Transactional
+    public void deleteSession(Long userId, Long sessionId) {
+        Session session = sessionRepository.findByIdWithCrewAndHostUser(sessionId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.SESSION_NOT_FOUND));
+
+        if (!session.getHostUser().getUserId().equals(userId)) {
+            throw new BusinessException(ErrorCode.SESSION_DELETE_FORBIDDEN);
+        }
+
+        session.delete();
+    }
+
+    @Transactional(readOnly = true)
+    public Slice<SessionListResponse> getMyHostedSessions(Long userId, Pageable pageable) {
+        return sessionRepository.findMyHostedSessions(userId, pageable);
+    }
+
     private User findUserById(Long userId) {
         return userRepository.findById(userId)
             .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));

@@ -369,4 +369,91 @@ class SessionRepositoryCustomTest {
             assertThat(result.hasNext()).isFalse();
         }
     }
+
+    @Nested
+    @DisplayName("내가 만든 세션 목록 조회")
+    class FindMyHostedSessions {
+
+        @Test
+        @DisplayName("성공 - 세션 목록 조회")
+        void findMyHostedSessions_success() {
+            // when
+            Slice<SessionListResponse> result = sessionRepository.findMyHostedSessions(
+                hostUser.getUserId(), PageRequest.of(0, 10)
+            );
+
+            // then
+            assertThat(result.getContent()).hasSize(4);
+            assertThat(result.getContent()).allMatch(s -> s.hostUserId().equals(hostUser.getUserId()));
+            assertThat(result.hasNext()).isFalse();
+        }
+
+        @Test
+        @DisplayName("성공 - 페이지네이션")
+        void findMyHostedSessions_pagination() {
+            // when
+            Slice<SessionListResponse> result = sessionRepository.findMyHostedSessions(
+                hostUser.getUserId(), PageRequest.of(0, 2)
+            );
+
+            // then
+            assertThat(result.getContent()).hasSize(2);
+            assertThat(result.hasNext()).isTrue();
+        }
+
+        @Test
+        @DisplayName("성공 - 다른 사용자는 빈 리스트")
+        void findMyHostedSessions_otherUser_empty() {
+            // given
+            String uniqueId = String.valueOf(System.nanoTime());
+            User otherUser = userRepository.save(User.create("other-" + uniqueId + "@test.com", "password", "다른유저"));
+
+            // when
+            Slice<SessionListResponse> result = sessionRepository.findMyHostedSessions(
+                otherUser.getUserId(), PageRequest.of(0, 10)
+            );
+
+            // then
+            assertThat(result.getContent()).isEmpty();
+            assertThat(result.hasNext()).isFalse();
+        }
+
+        @Test
+        @DisplayName("성공 - 삭제된 세션은 제외")
+        void findMyHostedSessions_excludeDeleted() {
+            // given
+            Session deletedSession = sessionRepository.save(Session.create(
+                seoulCrew, hostUser, "삭제될 세션", "설명", null,
+                "서울", "강남구", 37.4979, 127.0276,
+                LocalDateTime.now().plusDays(10),
+                LocalDateTime.now().plusDays(9),
+                SessionLevel.BEGINNER, 390, 20
+            ));
+            deletedSession.delete();
+            sessionRepository.save(deletedSession);
+
+            // when
+            Slice<SessionListResponse> result = sessionRepository.findMyHostedSessions(
+                hostUser.getUserId(), PageRequest.of(0, 20)
+            );
+
+            // then
+            assertThat(result.getContent()).hasSize(4); // 삭제된 세션 제외
+            assertThat(result.getContent()).noneMatch(s -> s.name().equals("삭제될 세션"));
+        }
+
+        @Test
+        @DisplayName("성공 - 최근 생성순 정렬")
+        void findMyHostedSessions_sortByCreatedAtDesc() {
+            // when
+            Slice<SessionListResponse> result = sessionRepository.findMyHostedSessions(
+                hostUser.getUserId(), PageRequest.of(0, 10)
+            );
+
+            // then
+            assertThat(result.getContent()).hasSize(4);
+            // 마지막으로 생성된 "성남 야간 러닝"이 첫 번째로 나와야 함
+            assertThat(result.getContent().get(0).name()).isEqualTo("성남 야간 러닝");
+        }
+    }
 }
