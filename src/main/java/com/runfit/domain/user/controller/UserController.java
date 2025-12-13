@@ -4,10 +4,12 @@ import com.runfit.common.response.PageResponse;
 import com.runfit.common.response.ResponseWrapper;
 import com.runfit.common.response.SliceResponse;
 import com.runfit.domain.auth.model.AuthUser;
+import com.runfit.domain.crew.controller.dto.response.CrewListResponse;
 import com.runfit.domain.review.controller.dto.response.ReviewResponse;
 import com.runfit.domain.session.controller.dto.response.SessionListResponse;
 import com.runfit.domain.user.controller.dto.request.UserUpdateRequest;
 import com.runfit.domain.user.controller.dto.response.LikedSessionResponse;
+import com.runfit.domain.user.controller.dto.response.MyCrewResponse;
 import com.runfit.domain.user.controller.dto.response.UserProfileResponse;
 import com.runfit.domain.user.controller.dto.response.UserResponse;
 import com.runfit.domain.user.service.UserService;
@@ -92,6 +94,40 @@ public class UserController implements UserApi {
         @RequestParam(defaultValue = "10") int size
     ) {
         Slice<SessionListResponse> result = userService.getMyHostedSessions(user.userId(), PageRequest.of(page, size));
+        return ResponseEntity.ok(ResponseWrapper.success(SliceResponse.from(result)));
+    }
+
+    @Override
+    @GetMapping("/me/crews/owned")
+    public ResponseEntity<ResponseWrapper<SliceResponse<CrewListResponse>>> getMyOwnedCrews(
+        @AuthenticationPrincipal AuthUser user,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        Slice<CrewListResponse> result = userService.getMyOwnedCrews(user.userId(), PageRequest.of(page, size));
+        return ResponseEntity.ok(ResponseWrapper.success(SliceResponse.from(result)));
+    }
+
+    @Override
+    @GetMapping("/me/crews")
+    public ResponseEntity<ResponseWrapper<SliceResponse<MyCrewResponse>>> getMyCrews(
+        @AuthenticationPrincipal AuthUser user,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        Slice<MyCrewResponse> result = userService.getMyCrews(user.userId(), PageRequest.of(page, size));
+        return ResponseEntity.ok(ResponseWrapper.success(SliceResponse.from(result)));
+    }
+
+    @Override
+    @GetMapping("/me/sessions/participating")
+    public ResponseEntity<ResponseWrapper<SliceResponse<SessionListResponse>>> getMyParticipatingSessions(
+        @AuthenticationPrincipal AuthUser user,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(required = false) String status
+    ) {
+        Slice<SessionListResponse> result = userService.getMyParticipatingSessions(user.userId(), status, PageRequest.of(page, size));
         return ResponseEntity.ok(ResponseWrapper.success(SliceResponse.from(result)));
     }
 }
