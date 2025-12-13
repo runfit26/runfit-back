@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface MembershipRepository extends JpaRepository<Membership, Long> {
+public interface MembershipRepository extends JpaRepository<Membership, Long>, MembershipRepositoryCustom {
 
     boolean existsByUserUserIdAndCrewId(Long userId, Long crewId);
 

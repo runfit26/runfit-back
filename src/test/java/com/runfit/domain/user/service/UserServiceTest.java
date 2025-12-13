@@ -6,14 +6,21 @@ import static org.mockito.BDDMockito.given;
 
 import com.runfit.common.exception.BusinessException;
 import com.runfit.common.exception.ErrorCode;
+import com.runfit.domain.crew.controller.dto.response.CrewListResponse;
+import com.runfit.domain.crew.entity.CrewRole;
+import com.runfit.domain.crew.repository.MembershipRepository;
 import com.runfit.domain.review.controller.dto.response.ReviewResponse;
 import com.runfit.domain.review.service.ReviewService;
 import com.runfit.domain.session.controller.dto.response.CoordsResponse;
+import com.runfit.domain.session.controller.dto.response.SessionListResponse;
 import com.runfit.domain.session.entity.SessionLevel;
 import com.runfit.domain.session.entity.SessionStatus;
 import com.runfit.domain.session.repository.SessionLikeRepository;
+import com.runfit.domain.session.repository.SessionParticipantRepository;
+import com.runfit.domain.session.repository.SessionRepository;
 import com.runfit.domain.user.controller.dto.request.UserUpdateRequest;
 import com.runfit.domain.user.controller.dto.response.LikedSessionResponse;
+import com.runfit.domain.user.controller.dto.response.MyCrewResponse;
 import com.runfit.domain.user.controller.dto.response.UserProfileResponse;
 import com.runfit.domain.user.controller.dto.response.UserResponse;
 import com.runfit.domain.user.entity.User;
@@ -45,6 +52,15 @@ class UserServiceTest {
 
     @Mock
     private SessionLikeRepository sessionLikeRepository;
+
+    @Mock
+    private SessionRepository sessionRepository;
+
+    @Mock
+    private SessionParticipantRepository sessionParticipantRepository;
+
+    @Mock
+    private MembershipRepository membershipRepository;
 
     @Mock
     private ReviewService reviewService;
@@ -385,6 +401,237 @@ class UserServiceTest {
             assertThat(result.getTotalPages()).isEqualTo(2);
             assertThat(result.getNumber()).isEqualTo(1);
             assertThat(result.hasPrevious()).isTrue();
+        }
+    }
+
+    @Nested
+    @DisplayName("내가 만든 크루 목록 조회")
+    class GetMyOwnedCrews {
+
+        @Test
+        @DisplayName("성공")
+        void success() {
+            // given
+            Long userId = 1L;
+            PageRequest pageable = PageRequest.of(0, 10);
+
+            CrewListResponse crew1 = new CrewListResponse(
+                1L, "잠실 러닝 크루", "잠실 인근 러닝 모임", "서울특별시",
+                "https://example.com/crew1.jpg", 24, LocalDateTime.now()
+            );
+            CrewListResponse crew2 = new CrewListResponse(
+                2L, "강남 러닝 크루", "강남 인근 러닝 모임", "서울특별시",
+                "https://example.com/crew2.jpg", 15, LocalDateTime.now()
+            );
+
+            Slice<CrewListResponse> mockSlice = new SliceImpl<>(
+                List.of(crew1, crew2), pageable, false
+            );
+
+            given(membershipRepository.findOwnedCrewsByUserId(userId, pageable))
+                .willReturn(mockSlice);
+
+            // when
+            Slice<CrewListResponse> result = userService.getMyOwnedCrews(userId, pageable);
+
+            // then
+            assertThat(result.getContent()).hasSize(2);
+            assertThat(result.hasNext()).isFalse();
+            assertThat(result.getContent().get(0).id()).isEqualTo(1L);
+            assertThat(result.getContent().get(0).name()).isEqualTo("잠실 러닝 크루");
+        }
+
+        @Test
+        @DisplayName("성공 - 만든 크루 없음")
+        void success_empty() {
+            // given
+            Long userId = 1L;
+            PageRequest pageable = PageRequest.of(0, 10);
+
+            Slice<CrewListResponse> mockSlice = new SliceImpl<>(List.of(), pageable, false);
+
+            given(membershipRepository.findOwnedCrewsByUserId(userId, pageable))
+                .willReturn(mockSlice);
+
+            // when
+            Slice<CrewListResponse> result = userService.getMyOwnedCrews(userId, pageable);
+
+            // then
+            assertThat(result.getContent()).isEmpty();
+            assertThat(result.hasNext()).isFalse();
+        }
+    }
+
+    @Nested
+    @DisplayName("내가 속한 크루 목록 조회")
+    class GetMyCrews {
+
+        @Test
+        @DisplayName("성공")
+        void success() {
+            // given
+            Long userId = 1L;
+            PageRequest pageable = PageRequest.of(0, 10);
+
+            MyCrewResponse crew1 = new MyCrewResponse(
+                1L, "잠실 러닝 크루", "잠실 인근 러닝 모임", "서울특별시",
+                "https://example.com/crew1.jpg", 24, CrewRole.LEADER, LocalDateTime.now()
+            );
+            MyCrewResponse crew2 = new MyCrewResponse(
+                2L, "강남 러닝 크루", "강남 인근 러닝 모임", "서울특별시",
+                "https://example.com/crew2.jpg", 15, CrewRole.MEMBER, LocalDateTime.now()
+            );
+
+            Slice<MyCrewResponse> mockSlice = new SliceImpl<>(
+                List.of(crew1, crew2), pageable, false
+            );
+
+            given(membershipRepository.findMyCrewsByUserId(userId, pageable))
+                .willReturn(mockSlice);
+
+            // when
+            Slice<MyCrewResponse> result = userService.getMyCrews(userId, pageable);
+
+            // then
+            assertThat(result.getContent()).hasSize(2);
+            assertThat(result.hasNext()).isFalse();
+            assertThat(result.getContent().get(0).myRole()).isEqualTo(CrewRole.LEADER);
+            assertThat(result.getContent().get(1).myRole()).isEqualTo(CrewRole.MEMBER);
+        }
+
+        @Test
+        @DisplayName("성공 - 속한 크루 없음")
+        void success_empty() {
+            // given
+            Long userId = 1L;
+            PageRequest pageable = PageRequest.of(0, 10);
+
+            Slice<MyCrewResponse> mockSlice = new SliceImpl<>(List.of(), pageable, false);
+
+            given(membershipRepository.findMyCrewsByUserId(userId, pageable))
+                .willReturn(mockSlice);
+
+            // when
+            Slice<MyCrewResponse> result = userService.getMyCrews(userId, pageable);
+
+            // then
+            assertThat(result.getContent()).isEmpty();
+            assertThat(result.hasNext()).isFalse();
+        }
+    }
+
+    @Nested
+    @DisplayName("내 참여 세션 목록 조회")
+    class GetMyParticipatingSessions {
+
+        @Test
+        @DisplayName("성공 - 전체 조회")
+        void success_all() {
+            // given
+            Long userId = 1L;
+            PageRequest pageable = PageRequest.of(0, 10);
+
+            SessionListResponse session1 = new SessionListResponse(
+                1L, 1L, 2L, "한강 야간 러닝", "https://example.com/session1.jpg",
+                "서울", "송파구", new CoordsResponse(37.5145, 127.1017),
+                LocalDateTime.now().plusDays(7), LocalDateTime.now().plusDays(6),
+                SessionLevel.BEGINNER, SessionStatus.OPEN, 390, 20, 12L, true, LocalDateTime.now()
+            );
+
+            Slice<SessionListResponse> mockSlice = new SliceImpl<>(
+                List.of(session1), pageable, false
+            );
+
+            given(sessionParticipantRepository.findParticipatingSessionsByUserId(userId, null, pageable))
+                .willReturn(mockSlice);
+
+            // when
+            Slice<SessionListResponse> result = userService.getMyParticipatingSessions(userId, null, pageable);
+
+            // then
+            assertThat(result.getContent()).hasSize(1);
+            assertThat(result.hasNext()).isFalse();
+            assertThat(result.getContent().get(0).id()).isEqualTo(1L);
+        }
+
+        @Test
+        @DisplayName("성공 - 예정된 세션만 조회")
+        void success_scheduled() {
+            // given
+            Long userId = 1L;
+            String status = "SCHEDULED";
+            PageRequest pageable = PageRequest.of(0, 10);
+
+            SessionListResponse session = new SessionListResponse(
+                1L, 1L, 2L, "예정 세션", null, "서울", "강남구",
+                new CoordsResponse(37.4979, 127.0276),
+                LocalDateTime.now().plusDays(7), LocalDateTime.now().plusDays(6),
+                SessionLevel.INTERMEDIATE, SessionStatus.OPEN, 360, 15, 8L, false, LocalDateTime.now()
+            );
+
+            Slice<SessionListResponse> mockSlice = new SliceImpl<>(
+                List.of(session), pageable, false
+            );
+
+            given(sessionParticipantRepository.findParticipatingSessionsByUserId(userId, status, pageable))
+                .willReturn(mockSlice);
+
+            // when
+            Slice<SessionListResponse> result = userService.getMyParticipatingSessions(userId, status, pageable);
+
+            // then
+            assertThat(result.getContent()).hasSize(1);
+            assertThat(result.getContent().get(0).name()).isEqualTo("예정 세션");
+        }
+
+        @Test
+        @DisplayName("성공 - 완료된 세션만 조회")
+        void success_completed() {
+            // given
+            Long userId = 1L;
+            String status = "COMPLETED";
+            PageRequest pageable = PageRequest.of(0, 10);
+
+            SessionListResponse session = new SessionListResponse(
+                2L, 1L, 2L, "완료 세션", null, "서울", "마포구",
+                new CoordsResponse(37.5547, 126.9106),
+                LocalDateTime.now().minusDays(7), LocalDateTime.now().minusDays(8),
+                SessionLevel.ADVANCED, SessionStatus.CLOSED, 330, 10, 10L, true, LocalDateTime.now().minusDays(14)
+            );
+
+            Slice<SessionListResponse> mockSlice = new SliceImpl<>(
+                List.of(session), pageable, false
+            );
+
+            given(sessionParticipantRepository.findParticipatingSessionsByUserId(userId, status, pageable))
+                .willReturn(mockSlice);
+
+            // when
+            Slice<SessionListResponse> result = userService.getMyParticipatingSessions(userId, status, pageable);
+
+            // then
+            assertThat(result.getContent()).hasSize(1);
+            assertThat(result.getContent().get(0).name()).isEqualTo("완료 세션");
+        }
+
+        @Test
+        @DisplayName("성공 - 참여 세션 없음")
+        void success_empty() {
+            // given
+            Long userId = 1L;
+            PageRequest pageable = PageRequest.of(0, 10);
+
+            Slice<SessionListResponse> mockSlice = new SliceImpl<>(List.of(), pageable, false);
+
+            given(sessionParticipantRepository.findParticipatingSessionsByUserId(userId, null, pageable))
+                .willReturn(mockSlice);
+
+            // when
+            Slice<SessionListResponse> result = userService.getMyParticipatingSessions(userId, null, pageable);
+
+            // then
+            assertThat(result.getContent()).isEmpty();
+            assertThat(result.hasNext()).isFalse();
         }
     }
 }

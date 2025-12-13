@@ -2,13 +2,17 @@ package com.runfit.domain.user.service;
 
 import com.runfit.common.exception.BusinessException;
 import com.runfit.common.exception.ErrorCode;
+import com.runfit.domain.crew.controller.dto.response.CrewListResponse;
+import com.runfit.domain.crew.repository.MembershipRepository;
 import com.runfit.domain.review.controller.dto.response.ReviewResponse;
 import com.runfit.domain.review.service.ReviewService;
 import com.runfit.domain.session.controller.dto.response.SessionListResponse;
 import com.runfit.domain.session.repository.SessionLikeRepository;
+import com.runfit.domain.session.repository.SessionParticipantRepository;
 import com.runfit.domain.session.repository.SessionRepository;
 import com.runfit.domain.user.controller.dto.request.UserUpdateRequest;
 import com.runfit.domain.user.controller.dto.response.LikedSessionResponse;
+import com.runfit.domain.user.controller.dto.response.MyCrewResponse;
 import com.runfit.domain.user.controller.dto.response.UserProfileResponse;
 import com.runfit.domain.user.controller.dto.response.UserResponse;
 import com.runfit.domain.user.entity.User;
@@ -27,6 +31,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final SessionLikeRepository sessionLikeRepository;
     private final SessionRepository sessionRepository;
+    private final SessionParticipantRepository sessionParticipantRepository;
+    private final MembershipRepository membershipRepository;
     private final ReviewService reviewService;
 
     @Transactional(readOnly = true)
@@ -68,6 +74,21 @@ public class UserService {
     @Transactional(readOnly = true)
     public Slice<SessionListResponse> getMyHostedSessions(Long userId, Pageable pageable) {
         return sessionRepository.findMyHostedSessions(userId, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Slice<CrewListResponse> getMyOwnedCrews(Long userId, Pageable pageable) {
+        return membershipRepository.findOwnedCrewsByUserId(userId, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Slice<MyCrewResponse> getMyCrews(Long userId, Pageable pageable) {
+        return membershipRepository.findMyCrewsByUserId(userId, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Slice<SessionListResponse> getMyParticipatingSessions(Long userId, String status, Pageable pageable) {
+        return sessionParticipantRepository.findParticipatingSessionsByUserId(userId, status, pageable);
     }
 
     private User findUserById(Long userId) {
