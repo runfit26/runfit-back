@@ -11,6 +11,10 @@ spring:
     compose:
       lifecycle-management: start_only
 
+springdoc:
+  server-url: http://localhost:8080
+  server-description: "로컬 서버"
+
 jwt:
   access:
     secret: localtest-dev-jwt-access-secret-key-must-be-at-least-32-characters
