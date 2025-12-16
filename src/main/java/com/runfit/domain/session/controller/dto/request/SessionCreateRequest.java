@@ -22,6 +22,8 @@ public record SessionCreateRequest(
 
     String district,
 
+    String location,
+
     Coords coords,
 
     @NotNull(message = "세션 시작 일시는 필수입니다.")

@@ -12,6 +12,7 @@ public record SessionListResponse(
     String image,
     String city,
     String district,
+    String location,
     CoordsResponse coords,
     LocalDateTime sessionAt,
     LocalDateTime registerBy,

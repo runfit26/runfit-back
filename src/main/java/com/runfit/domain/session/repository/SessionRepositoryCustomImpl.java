@@ -43,6 +43,7 @@ public class SessionRepositoryCustomImpl implements SessionRepositoryCustom {
                 session.image,
                 session.city,
                 session.district,
+                session.location,
                 Projections.constructor(CoordsResponse.class,
                     session.latitude,
                     session.longitude
@@ -170,6 +171,7 @@ public class SessionRepositoryCustomImpl implements SessionRepositoryCustom {
                 session.image,
                 session.city,
                 session.district,
+                session.location,
                 Projections.constructor(CoordsResponse.class,
                     session.latitude,
                     session.longitude

@@ -72,7 +72,7 @@ class SessionParticipantRepositoryCustomTest {
             // given
             Session session = sessionRepository.save(Session.create(
                 crew, user1, "내가 만든 세션", "설명", null,
-                "서울", "강남구", 37.4979, 127.0276,
+                "서울", "강남구", null, 37.4979, 127.0276,
                 LocalDateTime.now().plusDays(7),
                 LocalDateTime.now().plusDays(6),
                 SessionLevel.BEGINNER, 390, 20
@@ -95,7 +95,7 @@ class SessionParticipantRepositoryCustomTest {
             // given
             Session session = sessionRepository.save(Session.create(
                 crew, hostUser, "다른 사람이 만든 세션", "설명", null,
-                "서울", "강남구", 37.4979, 127.0276,
+                "서울", "강남구", null, 37.4979, 127.0276,
                 LocalDateTime.now().plusDays(7),
                 LocalDateTime.now().plusDays(6),
                 SessionLevel.BEGINNER, 390, 20
@@ -119,7 +119,7 @@ class SessionParticipantRepositoryCustomTest {
             // 내가 만든 세션
             Session mySession = sessionRepository.save(Session.create(
                 crew, user1, "내가 만든 세션", "설명", null,
-                "서울", "강남구", 37.4979, 127.0276,
+                "서울", "강남구", null, 37.4979, 127.0276,
                 LocalDateTime.now().plusDays(7),
                 LocalDateTime.now().plusDays(6),
                 SessionLevel.BEGINNER, 390, 20
@@ -128,7 +128,7 @@ class SessionParticipantRepositoryCustomTest {
             // 다른 사람이 만든 세션에 참여
             Session otherSession = sessionRepository.save(Session.create(
                 crew, hostUser, "다른 사람 세션", "설명", null,
-                "서울", "송파구", 37.5145, 127.1017,
+                "서울", "송파구", null, 37.5145, 127.1017,
                 LocalDateTime.now().plusDays(5),
                 LocalDateTime.now().plusDays(4),
                 SessionLevel.INTERMEDIATE, 360, 15
@@ -154,7 +154,7 @@ class SessionParticipantRepositoryCustomTest {
             // 내가 만든 세션에 내가 참여자로도 등록
             Session session = sessionRepository.save(Session.create(
                 crew, user1, "내가 만든 세션", "설명", null,
-                "서울", "강남구", 37.4979, 127.0276,
+                "서울", "강남구", null, 37.4979, 127.0276,
                 LocalDateTime.now().plusDays(7),
                 LocalDateTime.now().plusDays(6),
                 SessionLevel.BEGINNER, 390, 20
@@ -178,7 +178,7 @@ class SessionParticipantRepositoryCustomTest {
             // 예정된 세션
             Session futureSession = sessionRepository.save(Session.create(
                 crew, user1, "예정 세션", "설명", null,
-                "서울", "강남구", 37.4979, 127.0276,
+                "서울", "강남구", null, 37.4979, 127.0276,
                 LocalDateTime.now().plusDays(7),
                 LocalDateTime.now().plusDays(6),
                 SessionLevel.BEGINNER, 390, 20
@@ -187,7 +187,7 @@ class SessionParticipantRepositoryCustomTest {
             // 완료된 세션
             Session pastSession = sessionRepository.save(Session.create(
                 crew, user1, "완료 세션", "설명", null,
-                "서울", "송파구", 37.5145, 127.1017,
+                "서울", "송파구", null, 37.5145, 127.1017,
                 LocalDateTime.now().minusDays(7),
                 LocalDateTime.now().minusDays(8),
                 SessionLevel.INTERMEDIATE, 360, 15
@@ -210,7 +210,7 @@ class SessionParticipantRepositoryCustomTest {
             // 예정된 세션
             Session futureSession = sessionRepository.save(Session.create(
                 crew, user1, "예정 세션", "설명", null,
-                "서울", "강남구", 37.4979, 127.0276,
+                "서울", "강남구", null, 37.4979, 127.0276,
                 LocalDateTime.now().plusDays(7),
                 LocalDateTime.now().plusDays(6),
                 SessionLevel.BEGINNER, 390, 20
@@ -219,7 +219,7 @@ class SessionParticipantRepositoryCustomTest {
             // 완료된 세션
             Session pastSession = sessionRepository.save(Session.create(
                 crew, user1, "완료 세션", "설명", null,
-                "서울", "송파구", 37.5145, 127.1017,
+                "서울", "송파구", null, 37.5145, 127.1017,
                 LocalDateTime.now().minusDays(7),
                 LocalDateTime.now().minusDays(8),
                 SessionLevel.INTERMEDIATE, 360, 15
@@ -241,7 +241,7 @@ class SessionParticipantRepositoryCustomTest {
             // given
             Session futureSession = sessionRepository.save(Session.create(
                 crew, user1, "예정 세션", "설명", null,
-                "서울", "강남구", 37.4979, 127.0276,
+                "서울", "강남구", null, 37.4979, 127.0276,
                 LocalDateTime.now().plusDays(7),
                 LocalDateTime.now().plusDays(6),
                 SessionLevel.BEGINNER, 390, 20
@@ -262,7 +262,7 @@ class SessionParticipantRepositoryCustomTest {
             // given
             Session normalSession = sessionRepository.save(Session.create(
                 crew, user1, "일반 세션", "설명", null,
-                "서울", "강남구", 37.4979, 127.0276,
+                "서울", "강남구", null, 37.4979, 127.0276,
                 LocalDateTime.now().plusDays(7),
                 LocalDateTime.now().plusDays(6),
                 SessionLevel.BEGINNER, 390, 20
@@ -270,7 +270,7 @@ class SessionParticipantRepositoryCustomTest {
 
             Session deletedSession = sessionRepository.save(Session.create(
                 crew, user1, "삭제된 세션", "설명", null,
-                "서울", "송파구", 37.5145, 127.1017,
+                "서울", "송파구", null, 37.5145, 127.1017,
                 LocalDateTime.now().plusDays(5),
                 LocalDateTime.now().plusDays(4),
                 SessionLevel.INTERMEDIATE, 360, 15
@@ -310,7 +310,7 @@ class SessionParticipantRepositoryCustomTest {
             for (int i = 0; i < 5; i++) {
                 sessionRepository.save(Session.create(
                     crew, user1, "세션" + i, "설명", null,
-                    "서울", "강남구", 37.4979, 127.0276,
+                    "서울", "강남구", null, 37.4979, 127.0276,
                     LocalDateTime.now().plusDays(i + 1),
                     LocalDateTime.now().plusDays(i),
                     SessionLevel.BEGINNER, 390, 20
@@ -333,7 +333,7 @@ class SessionParticipantRepositoryCustomTest {
             // given
             Session user1Session = sessionRepository.save(Session.create(
                 crew, user1, "user1 세션", "설명", null,
-                "서울", "강남구", 37.4979, 127.0276,
+                "서울", "강남구", null, 37.4979, 127.0276,
                 LocalDateTime.now().plusDays(7),
                 LocalDateTime.now().plusDays(6),
                 SessionLevel.BEGINNER, 390, 20
@@ -341,7 +341,7 @@ class SessionParticipantRepositoryCustomTest {
 
             Session user2Session = sessionRepository.save(Session.create(
                 crew, user2, "user2 세션", "설명", null,
-                "서울", "송파구", 37.5145, 127.1017,
+                "서울", "송파구", null, 37.5145, 127.1017,
                 LocalDateTime.now().plusDays(5),
                 LocalDateTime.now().plusDays(4),
                 SessionLevel.INTERMEDIATE, 360, 15
@@ -363,7 +363,7 @@ class SessionParticipantRepositoryCustomTest {
             // given
             Session session = sessionRepository.save(Session.create(
                 crew, user1, "세션", "설명", null,
-                "서울", "강남구", 37.4979, 127.0276,
+                "서울", "강남구", null, 37.4979, 127.0276,
                 LocalDateTime.now().plusDays(7),
                 LocalDateTime.now().plusDays(6),
                 SessionLevel.BEGINNER, 390, 20
@@ -388,7 +388,7 @@ class SessionParticipantRepositoryCustomTest {
             // given
             Session session1 = sessionRepository.save(Session.create(
                 crew, user1, "먼저 예정된 세션", "설명", null,
-                "서울", "강남구", 37.4979, 127.0276,
+                "서울", "강남구", null, 37.4979, 127.0276,
                 LocalDateTime.now().plusDays(3),
                 LocalDateTime.now().plusDays(2),
                 SessionLevel.BEGINNER, 390, 20
@@ -396,7 +396,7 @@ class SessionParticipantRepositoryCustomTest {
 
             Session session2 = sessionRepository.save(Session.create(
                 crew, user1, "나중에 예정된 세션", "설명", null,
-                "서울", "송파구", 37.5145, 127.1017,
+                "서울", "송파구", null, 37.5145, 127.1017,
                 LocalDateTime.now().plusDays(10),
                 LocalDateTime.now().plusDays(9),
                 SessionLevel.INTERMEDIATE, 360, 15
@@ -420,7 +420,7 @@ class SessionParticipantRepositoryCustomTest {
             // given
             Session futureSession = sessionRepository.save(Session.create(
                 crew, user1, "예정 세션", "설명", null,
-                "서울", "강남구", 37.4979, 127.0276,
+                "서울", "강남구", null, 37.4979, 127.0276,
                 LocalDateTime.now().plusDays(7),
                 LocalDateTime.now().plusDays(6),
                 SessionLevel.BEGINNER, 390, 20
@@ -428,7 +428,7 @@ class SessionParticipantRepositoryCustomTest {
 
             Session pastSession = sessionRepository.save(Session.create(
                 crew, user1, "완료 세션", "설명", null,
-                "서울", "송파구", 37.5145, 127.1017,
+                "서울", "송파구", null, 37.5145, 127.1017,
                 LocalDateTime.now().minusDays(7),
                 LocalDateTime.now().minusDays(8),
                 SessionLevel.INTERMEDIATE, 360, 15

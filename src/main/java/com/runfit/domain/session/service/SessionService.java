@@ -58,6 +58,7 @@ public class SessionService {
             request.image(),
             request.city(),
             request.district(),
+            request.location(),
             request.latitude(),
             request.longitude(),
             request.sessionAt(),

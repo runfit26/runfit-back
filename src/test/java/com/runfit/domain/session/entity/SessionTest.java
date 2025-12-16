@@ -33,6 +33,7 @@ class SessionTest {
         String image = "https://example.com/session.jpg";
         String city = "서울";
         String district = "송파구";
+        String location = "반포 한강공원 (서울 서초구 신반포로11길 40)";
         Double latitude = 37.5145;
         Double longitude = 127.1017;
         LocalDateTime sessionAt = LocalDateTime.now().plusDays(7);
@@ -44,7 +45,7 @@ class SessionTest {
         // when
         Session session = Session.create(
             crew, hostUser, name, description, image,
-            city, district, latitude, longitude,
+            city, district, location, latitude, longitude,
             sessionAt, registerBy, level, pace, maxParticipantCount
         );
 
@@ -56,6 +57,7 @@ class SessionTest {
         assertThat(session.getImage()).isEqualTo(image);
         assertThat(session.getCity()).isEqualTo(city);
         assertThat(session.getDistrict()).isEqualTo(district);
+        assertThat(session.getLocation()).isEqualTo(location);
         assertThat(session.getLatitude()).isEqualTo(latitude);
         assertThat(session.getLongitude()).isEqualTo(longitude);
         assertThat(session.getSessionAt()).isEqualTo(sessionAt);
@@ -103,7 +105,7 @@ class SessionTest {
         // given
         Session session = Session.create(
             crew, hostUser, "세션", "설명", null,
-            "서울", "송파구", 37.5145, 127.1017,
+            "서울", "송파구", null, 37.5145, 127.1017,
             LocalDateTime.now().plusDays(7),
             LocalDateTime.now().plusDays(6),
             SessionLevel.BEGINNER, 390, 20
@@ -119,7 +121,7 @@ class SessionTest {
         // given
         Session session = Session.create(
             crew, hostUser, "세션", "설명", null,
-            "서울", "송파구", 37.5145, 127.1017,
+            "서울", "송파구", null, 37.5145, 127.1017,
             LocalDateTime.now().plusDays(7),
             LocalDateTime.now().minusDays(1),
             SessionLevel.BEGINNER, 390, 20
@@ -135,7 +137,7 @@ class SessionTest {
         // given
         Session session = Session.create(
             crew, hostUser, "세션", "설명", null,
-            "서울", "송파구", 37.5145, 127.1017,
+            "서울", "송파구", null, 37.5145, 127.1017,
             LocalDateTime.now().plusDays(7),
             LocalDateTime.now().plusDays(6),
             SessionLevel.BEGINNER, 390, 20
@@ -149,7 +151,7 @@ class SessionTest {
     private Session createTestSession() {
         return Session.create(
             crew, hostUser, "테스트 세션", "설명", null,
-            "서울", "송파구", 37.5145, 127.1017,
+            "서울", "송파구", null, 37.5145, 127.1017,
             LocalDateTime.now().plusDays(7),
             LocalDateTime.now().plusDays(6),
             SessionLevel.BEGINNER, 390, 20

@@ -78,13 +78,13 @@ class UserServiceTest {
 
             LikedSessionResponse likedSession1 = new LikedSessionResponse(
                 1L, 1L, "한강 야간 러닝", "https://example.com/session1.jpg",
-                "서울", "송파구", new CoordsResponse(37.5145, 127.1017),
+                "서울", "송파구", null, new CoordsResponse(37.5145, 127.1017),
                 LocalDateTime.now().plusDays(7),
                 SessionLevel.BEGINNER, SessionStatus.OPEN
             );
             LikedSessionResponse likedSession2 = new LikedSessionResponse(
                 2L, 2L, "북한산 트레일 러닝", "https://example.com/session2.jpg",
-                "서울", "은평구", new CoordsResponse(37.6584, 126.9747),
+                "서울", "은평구", null, new CoordsResponse(37.6584, 126.9747),
                 LocalDateTime.now().plusDays(14),
                 SessionLevel.ADVANCED, SessionStatus.OPEN
             );
@@ -135,12 +135,12 @@ class UserServiceTest {
             PageRequest pageable = PageRequest.of(0, 2);
 
             LikedSessionResponse likedSession1 = new LikedSessionResponse(
-                1L, 1L, "세션1", null, "서울", "강남구", new CoordsResponse(37.4979, 127.0276),
+                1L, 1L, "세션1", null, "서울", "강남구", null, new CoordsResponse(37.4979, 127.0276),
                 LocalDateTime.now().plusDays(7),
                 SessionLevel.BEGINNER, SessionStatus.OPEN
             );
             LikedSessionResponse likedSession2 = new LikedSessionResponse(
-                2L, 1L, "세션2", null, "서울", "서초구", new CoordsResponse(37.4837, 127.0324),
+                2L, 1L, "세션2", null, "서울", "서초구", null, new CoordsResponse(37.4837, 127.0324),
                 LocalDateTime.now().plusDays(8),
                 SessionLevel.INTERMEDIATE, SessionStatus.OPEN
             );
@@ -533,7 +533,7 @@ class UserServiceTest {
 
             SessionListResponse session1 = new SessionListResponse(
                 1L, 1L, 2L, "한강 야간 러닝", "https://example.com/session1.jpg",
-                "서울", "송파구", new CoordsResponse(37.5145, 127.1017),
+                "서울", "송파구", null, new CoordsResponse(37.5145, 127.1017),
                 LocalDateTime.now().plusDays(7), LocalDateTime.now().plusDays(6),
                 SessionLevel.BEGINNER, SessionStatus.OPEN, 390, 20, 12L, true, LocalDateTime.now()
             );
@@ -563,7 +563,7 @@ class UserServiceTest {
             PageRequest pageable = PageRequest.of(0, 10);
 
             SessionListResponse session = new SessionListResponse(
-                1L, 1L, 2L, "예정 세션", null, "서울", "강남구",
+                1L, 1L, 2L, "예정 세션", null, "서울", "강남구", null,
                 new CoordsResponse(37.4979, 127.0276),
                 LocalDateTime.now().plusDays(7), LocalDateTime.now().plusDays(6),
                 SessionLevel.INTERMEDIATE, SessionStatus.OPEN, 360, 15, 8L, false, LocalDateTime.now()
@@ -593,7 +593,7 @@ class UserServiceTest {
             PageRequest pageable = PageRequest.of(0, 10);
 
             SessionListResponse session = new SessionListResponse(
-                2L, 1L, 2L, "완료 세션", null, "서울", "마포구",
+                2L, 1L, 2L, "완료 세션", null, "서울", "마포구", null,
                 new CoordsResponse(37.5547, 126.9106),
                 LocalDateTime.now().minusDays(7), LocalDateTime.now().minusDays(8),
                 SessionLevel.ADVANCED, SessionStatus.CLOSED, 330, 10, 10L, true, LocalDateTime.now().minusDays(14)

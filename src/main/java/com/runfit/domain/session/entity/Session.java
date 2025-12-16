@@ -53,6 +53,9 @@ public class Session extends SoftDeleteEntity {
     @Column(name = "district")
     private String district;
 
+    @Column(name = "location")
+    private String location;
+
     @Column(name = "latitude")
     private Double latitude;
 
@@ -81,7 +84,7 @@ public class Session extends SoftDeleteEntity {
 
     @Builder
     private Session(Crew crew, User hostUser, String name, String description, String image,
-        String city, String district, Double latitude, Double longitude,
+        String city, String district, String location, Double latitude, Double longitude,
         LocalDateTime sessionAt, LocalDateTime registerBy,
         SessionLevel level, Integer pace, Integer maxParticipantCount) {
         this.crew = crew;
@@ -91,6 +94,7 @@ public class Session extends SoftDeleteEntity {
         this.image = image;
         this.city = city;
         this.district = district;
+        this.location = location;
         this.latitude = latitude;
         this.longitude = longitude;
         this.sessionAt = sessionAt;
@@ -102,7 +106,7 @@ public class Session extends SoftDeleteEntity {
     }
 
     public static Session create(Crew crew, User hostUser, String name, String description,
-        String image, String city, String district, Double latitude, Double longitude,
+        String image, String city, String district, String location, Double latitude, Double longitude,
         LocalDateTime sessionAt, LocalDateTime registerBy,
         SessionLevel level, Integer pace, Integer maxParticipantCount) {
         return Session.builder()
@@ -113,6 +117,7 @@ public class Session extends SoftDeleteEntity {
             .image(image)
             .city(city)
             .district(district)
+            .location(location)
             .latitude(latitude)
             .longitude(longitude)
             .sessionAt(sessionAt)

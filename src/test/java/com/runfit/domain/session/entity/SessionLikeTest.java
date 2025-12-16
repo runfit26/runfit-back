@@ -28,7 +28,7 @@ class SessionLikeTest {
 
         session = Session.create(
             crew, hostUser, "테스트 세션", "설명", null,
-            "서울", "송파구", 37.5145, 127.1017,
+            "서울", "송파구", null, 37.5145, 127.1017,
             LocalDateTime.now().plusDays(7),
             LocalDateTime.now().plusDays(6),
             SessionLevel.BEGINNER, 390, 20

@@ -64,7 +64,7 @@ class SessionRepositoryCustomTest {
         // 서울 강남구 세션 - 아침 시간 (08:00)
         sessionRepository.save(Session.create(
             seoulCrew, hostUser, "강남 아침 러닝", "설명", null,
-            "서울", "강남구", 37.4979, 127.0276,
+            "서울", "강남구", null, 37.4979, 127.0276,
             now.plusDays(3).withHour(8).withMinute(0),
             now.plusDays(2),
             SessionLevel.BEGINNER, 390, 20
@@ -73,7 +73,7 @@ class SessionRepositoryCustomTest {
         // 서울 송파구 세션 - 저녁 시간 (20:00)
         sessionRepository.save(Session.create(
             seoulCrew, hostUser, "송파 저녁 러닝", "설명", null,
-            "서울", "송파구", 37.5145, 127.1017,
+            "서울", "송파구", null, 37.5145, 127.1017,
             now.plusDays(5).withHour(20).withMinute(0),
             now.plusDays(4),
             SessionLevel.INTERMEDIATE, 360, 15
@@ -82,7 +82,7 @@ class SessionRepositoryCustomTest {
         // 경기 가평군 세션 - 점심 시간 (12:00)
         sessionRepository.save(Session.create(
             gyeonggiCrew, hostUser, "가평 트레일 러닝", "설명", null,
-            "경기", "가평군", 37.8315, 127.5095,
+            "경기", "가평군", null, 37.8315, 127.5095,
             now.plusDays(7).withHour(12).withMinute(0),
             now.plusDays(6),
             SessionLevel.ADVANCED, 330, 10
@@ -91,7 +91,7 @@ class SessionRepositoryCustomTest {
         // 경기 성남시 세션 - 저녁 시간 (19:30)
         sessionRepository.save(Session.create(
             gyeonggiCrew, hostUser, "성남 야간 러닝", "설명", null,
-            "경기", "성남시", 37.4200, 127.1267,
+            "경기", "성남시", null, 37.4200, 127.1267,
             now.plusDays(2).withHour(19).withMinute(30),
             now.plusDays(1),
             SessionLevel.BEGINNER, 420, 25
@@ -424,7 +424,7 @@ class SessionRepositoryCustomTest {
             // given
             Session deletedSession = sessionRepository.save(Session.create(
                 seoulCrew, hostUser, "삭제될 세션", "설명", null,
-                "서울", "강남구", 37.4979, 127.0276,
+                "서울", "강남구", null, 37.4979, 127.0276,
                 LocalDateTime.now().plusDays(10),
                 LocalDateTime.now().plusDays(9),
                 SessionLevel.BEGINNER, 390, 20

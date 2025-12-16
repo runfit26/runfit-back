@@ -30,6 +30,7 @@ public class SessionLikeRepositoryCustomImpl implements SessionLikeRepositoryCus
                 session.image,
                 session.city,
                 session.district,
+                session.location,
                 Projections.constructor(CoordsResponse.class,
                     session.latitude,
                     session.longitude

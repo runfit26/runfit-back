@@ -233,12 +233,12 @@ class CrewRepositoryCustomTest {
         LocalDateTime now = LocalDateTime.now();
         sessionRepository.save(Session.create(
             crewWithOldSession, hostUser, "오래된 세션", "설명", null,
-            "서울", "송파구", 37.5145, 127.1017,
+            "서울", "송파구", null, 37.5145, 127.1017,
             now.minusDays(10), now.minusDays(11), SessionLevel.BEGINNER, 360, 10
         ));
         sessionRepository.save(Session.create(
             crewWithNewSession, hostUser, "최신 세션", "설명", null,
-            "서울", "송파구", 37.5145, 127.1017,
+            "서울", "송파구", null, 37.5145, 127.1017,
             now.plusDays(5), now.plusDays(4), SessionLevel.BEGINNER, 360, 10
         ));
 

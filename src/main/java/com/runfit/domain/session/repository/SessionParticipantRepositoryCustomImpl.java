@@ -43,6 +43,7 @@ public class SessionParticipantRepositoryCustomImpl implements SessionParticipan
                 session.image,
                 session.city,
                 session.district,
+                session.location,
                 Projections.constructor(CoordsResponse.class,
                     session.latitude,
                     session.longitude

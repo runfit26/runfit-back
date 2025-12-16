@@ -62,7 +62,7 @@ class SessionRepositoryTest {
             // registerBy가 이미 지난 세션 (OPEN)
             Session expiredSession = sessionRepository.save(Session.create(
                 crew, hostUser, "마감된 세션", "설명", null,
-                "서울", "강남구", 37.4979, 127.0276,
+                "서울", "강남구", null, 37.4979, 127.0276,
                 now.plusDays(3),
                 now.minusHours(1),  // registerBy가 1시간 전
                 SessionLevel.BEGINNER, 390, 20
@@ -93,7 +93,7 @@ class SessionRepositoryTest {
             // registerBy가 아직 안 지난 세션
             Session futureSession = sessionRepository.save(Session.create(
                 crew, hostUser, "모집중 세션", "설명", null,
-                "서울", "강남구", 37.4979, 127.0276,
+                "서울", "강남구", null, 37.4979, 127.0276,
                 now.plusDays(3),
                 now.plusDays(1),  // registerBy가 내일
                 SessionLevel.BEGINNER, 390, 20
@@ -121,7 +121,7 @@ class SessionRepositoryTest {
 
             Session closedSession = sessionRepository.save(Session.create(
                 crew, hostUser, "이미 마감된 세션", "설명", null,
-                "서울", "강남구", 37.4979, 127.0276,
+                "서울", "강남구", null, 37.4979, 127.0276,
                 now.plusDays(3),
                 now.minusHours(1),
                 SessionLevel.BEGINNER, 390, 20
@@ -148,7 +148,7 @@ class SessionRepositoryTest {
 
             Session deletedSession = sessionRepository.save(Session.create(
                 crew, hostUser, "삭제된 세션", "설명", null,
-                "서울", "강남구", 37.4979, 127.0276,
+                "서울", "강남구", null, 37.4979, 127.0276,
                 now.plusDays(3),
                 now.minusHours(1),
                 SessionLevel.BEGINNER, 390, 20
@@ -177,7 +177,7 @@ class SessionRepositoryTest {
             for (int i = 0; i < 3; i++) {
                 sessionRepository.save(Session.create(
                     crew, hostUser, "마감된 세션 " + i, "설명", null,
-                    "서울", "강남구", 37.4979, 127.0276,
+                    "서울", "강남구", null, 37.4979, 127.0276,
                     now.plusDays(3),
                     now.minusHours(i + 1),  // 각각 1, 2, 3시간 전 마감
                     SessionLevel.BEGINNER, 390, 20
@@ -188,7 +188,7 @@ class SessionRepositoryTest {
             for (int i = 0; i < 2; i++) {
                 sessionRepository.save(Session.create(
                     crew, hostUser, "모집중 세션 " + i, "설명", null,
-                    "서울", "강남구", 37.4979, 127.0276,
+                    "서울", "강남구", null, 37.4979, 127.0276,
                     now.plusDays(3),
                     now.plusDays(i + 1),  // 내일, 모레 마감
                     SessionLevel.BEGINNER, 390, 20
