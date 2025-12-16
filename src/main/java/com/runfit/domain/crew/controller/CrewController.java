@@ -105,9 +105,10 @@ public class CrewController implements CrewApi {
     @GetMapping("/{crewId}/members")
     public ResponseEntity<ResponseWrapper<CrewMembersResponse>> getCrewMembers(
         @PathVariable Long crewId,
-        @RequestParam(required = false) String role
+        @RequestParam(required = false) String role,
+        @RequestParam(required = false) String sort
     ) {
-        CrewMembersResponse response = crewService.getCrewMembers(crewId, role);
+        CrewMembersResponse response = crewService.getCrewMembers(crewId, role, sort);
         return ResponseEntity.ok(ResponseWrapper.success(response));
     }
 

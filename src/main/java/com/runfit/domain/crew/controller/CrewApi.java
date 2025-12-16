@@ -85,14 +85,15 @@ public interface CrewApi {
         @Parameter(description = "크루 ID") @PathVariable Long crewId
     );
 
-    @Operation(summary = "크루 멤버 목록 조회", description = "크루 멤버 목록을 조회합니다. role 파라미터로 필터링 가능합니다.")
+    @Operation(summary = "크루 멤버 목록 조회", description = "크루 멤버 목록을 조회합니다. role 파라미터로 필터링, sort 파라미터로 정렬 가능합니다.")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "조회 성공"),
         @ApiResponse(responseCode = "404", description = "크루 없음")
     })
     ResponseEntity<ResponseWrapper<CrewMembersResponse>> getCrewMembers(
         @Parameter(description = "크루 ID") @PathVariable Long crewId,
-        @Parameter(description = "역할 필터 (leader, staff, general)") @RequestParam(required = false) String role
+        @Parameter(description = "역할 필터 (leader, staff, general)") @RequestParam(required = false) String role,
+        @Parameter(description = "정렬 (joinedAtDesc: 최근 가입 순(기본값), roleAsc: 역할 순(리더→운영진→멤버))") @RequestParam(required = false) String sort
     );
 
     @Operation(summary = "크루 멤버 역할별 카운트 조회", description = "크루 멤버의 역할별 인원수를 조회합니다.")

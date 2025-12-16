@@ -164,4 +164,43 @@ class MembershipRepositoryTest {
         // then
         assertThat(found).isEmpty();
     }
+
+    @Test
+    @DisplayName("크루 ID로 모든 멤버십 조회 - 역할순 정렬")
+    void findAllByCrewIdWithUserOrderByRole_success() {
+        // given
+        Membership memberMembership = membershipRepository.save(Membership.createMember(user3, crew));
+        Membership staffMembership = membershipRepository.save(Membership.createMember(user2, crew));
+        staffMembership.changeRole(CrewRole.STAFF);
+        membershipRepository.save(staffMembership);
+        Membership leaderMembership = membershipRepository.save(Membership.createLeader(user1, crew));
+
+        // when
+        List<Membership> memberships = membershipRepository.findAllByCrewIdWithUserOrderByRole(crew.getId());
+
+        // then
+        assertThat(memberships).hasSize(3);
+        assertThat(memberships.get(0).getRole()).isEqualTo(CrewRole.LEADER);
+        assertThat(memberships.get(1).getRole()).isEqualTo(CrewRole.STAFF);
+        assertThat(memberships.get(2).getRole()).isEqualTo(CrewRole.MEMBER);
+    }
+
+    @Test
+    @DisplayName("크루 ID로 모든 멤버십 조회 - 최근 가입순 정렬")
+    void findAllByCrewIdWithUser_sortByJoinedAtDesc() {
+        // given
+        Membership first = membershipRepository.save(Membership.createLeader(user1, crew));
+        Membership second = membershipRepository.save(Membership.createMember(user2, crew));
+        Membership third = membershipRepository.save(Membership.createMember(user3, crew));
+
+        // when
+        List<Membership> memberships = membershipRepository.findAllByCrewIdWithUser(crew.getId());
+
+        // then
+        assertThat(memberships).hasSize(3);
+        // 최근 가입순(DESC)이므로 마지막으로 가입한 사람이 첫 번째
+        assertThat(memberships.get(0).getUser().getUserId()).isEqualTo(user3.getUserId());
+        assertThat(memberships.get(1).getUser().getUserId()).isEqualTo(user2.getUserId());
+        assertThat(memberships.get(2).getUser().getUserId()).isEqualTo(user1.getUserId());
+    }
 }

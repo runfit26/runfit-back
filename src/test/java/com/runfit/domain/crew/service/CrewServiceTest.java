@@ -187,19 +187,34 @@ class CrewServiceTest {
     class GetCrewMembers {
 
         @Test
-        @DisplayName("전체 멤버 조회 성공")
-        void success_all() {
+        @DisplayName("전체 멤버 조회 성공 - 기본 정렬 (최근 가입순)")
+        void success_all_defaultSort() {
             // given
             given(crewRepository.findByIdAndDeletedIsNull(1L)).willReturn(Optional.of(crew));
             given(membershipRepository.findAllByCrewIdWithUser(1L))
                 .willReturn(List.of(leaderMembership, memberMembership));
 
             // when
-            CrewMembersResponse response = crewService.getCrewMembers(1L, null);
+            CrewMembersResponse response = crewService.getCrewMembers(1L, null, null);
 
             // then
-            assertThat(response.leader()).isNotNull();
-            assertThat(response.members()).hasSize(1);
+            assertThat(response.members()).hasSize(2);
+        }
+
+        @Test
+        @DisplayName("전체 멤버 조회 성공 - 역할순 정렬")
+        void success_all_sortByRole() {
+            // given
+            given(crewRepository.findByIdAndDeletedIsNull(1L)).willReturn(Optional.of(crew));
+            given(membershipRepository.findAllByCrewIdWithUserOrderByRole(1L))
+                .willReturn(List.of(leaderMembership, memberMembership));
+
+            // when
+            CrewMembersResponse response = crewService.getCrewMembers(1L, null, "roleAsc");
+
+            // then
+            assertThat(response.members()).hasSize(2);
+            assertThat(response.members().get(0).role()).isEqualTo(CrewRole.LEADER);
         }
 
         @Test
@@ -211,12 +226,11 @@ class CrewServiceTest {
                 .willReturn(List.of(leaderMembership));
 
             // when
-            CrewMembersResponse response = crewService.getCrewMembers(1L, "leader");
+            CrewMembersResponse response = crewService.getCrewMembers(1L, "leader", null);
 
             // then
-            assertThat(response.leader()).isNotNull();
-            assertThat(response.staff()).isEmpty();
-            assertThat(response.members()).isEmpty();
+            assertThat(response.members()).hasSize(1);
+            assertThat(response.members().get(0).role()).isEqualTo(CrewRole.LEADER);
         }
     }
 

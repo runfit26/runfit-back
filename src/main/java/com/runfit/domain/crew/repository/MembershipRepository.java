@@ -14,11 +14,19 @@ public interface MembershipRepository extends JpaRepository<Membership, Long>, M
 
     Optional<Membership> findByUserUserIdAndCrewId(Long userId, Long crewId);
 
-    @Query("SELECT m FROM Membership m JOIN FETCH m.user WHERE m.crew.id = :crewId")
+    @Query("SELECT m FROM Membership m JOIN FETCH m.user WHERE m.crew.id = :crewId ORDER BY m.joinedAt DESC")
     List<Membership> findAllByCrewIdWithUser(@Param("crewId") Long crewId);
 
-    @Query("SELECT m FROM Membership m JOIN FETCH m.user WHERE m.crew.id = :crewId AND m.role = :role")
+    @Query("SELECT m FROM Membership m JOIN FETCH m.user WHERE m.crew.id = :crewId AND m.role = :role ORDER BY m.joinedAt DESC")
     List<Membership> findAllByCrewIdAndRoleWithUser(@Param("crewId") Long crewId, @Param("role") CrewRole role);
+
+    @Query("SELECT m FROM Membership m JOIN FETCH m.user WHERE m.crew.id = :crewId " +
+           "ORDER BY CASE m.role WHEN 'LEADER' THEN 1 WHEN 'STAFF' THEN 2 ELSE 3 END, m.joinedAt DESC")
+    List<Membership> findAllByCrewIdWithUserOrderByRole(@Param("crewId") Long crewId);
+
+    @Query("SELECT m FROM Membership m JOIN FETCH m.user WHERE m.crew.id = :crewId AND m.role = :role " +
+           "ORDER BY CASE m.role WHEN 'LEADER' THEN 1 WHEN 'STAFF' THEN 2 ELSE 3 END, m.joinedAt DESC")
+    List<Membership> findAllByCrewIdAndRoleWithUserOrderByRole(@Param("crewId") Long crewId, @Param("role") CrewRole role);
 
     @Query("SELECT m FROM Membership m WHERE m.crew.id = :crewId AND m.role = :role")
     Optional<Membership> findByCrewIdAndRole(@Param("crewId") Long crewId, @Param("role") CrewRole role);

@@ -24,7 +24,6 @@ import com.runfit.domain.crew.repository.MembershipRepository;
 import com.runfit.domain.user.entity.User;
 import com.runfit.domain.user.repository.UserRepository;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -94,44 +93,24 @@ public class CrewService {
     }
 
     @Transactional(readOnly = true)
-    public CrewMembersResponse getCrewMembers(Long crewId, String role) {
+    public CrewMembersResponse getCrewMembers(Long crewId, String role, String sort) {
         findCrewById(crewId);
+
+        boolean sortByRole = "roleAsc".equalsIgnoreCase(sort);
+        List<Membership> memberships;
 
         if (role != null) {
             CrewRole crewRole = parseRole(role);
-            List<Membership> memberships = membershipRepository.findAllByCrewIdAndRoleWithUser(crewId, crewRole);
-            List<MemberResponse> members = memberships.stream()
-                .map(MemberResponse::from)
-                .toList();
-
-            if (crewRole == CrewRole.LEADER) {
-                return CrewMembersResponse.of(members.isEmpty() ? null : members.get(0), List.of(), List.of());
-            } else if (crewRole == CrewRole.STAFF) {
-                return CrewMembersResponse.of(null, members, List.of());
-            } else {
-                return CrewMembersResponse.of(null, List.of(), members);
-            }
+            memberships = sortByRole
+                ? membershipRepository.findAllByCrewIdAndRoleWithUserOrderByRole(crewId, crewRole)
+                : membershipRepository.findAllByCrewIdAndRoleWithUser(crewId, crewRole);
+        } else {
+            memberships = sortByRole
+                ? membershipRepository.findAllByCrewIdWithUserOrderByRole(crewId)
+                : membershipRepository.findAllByCrewIdWithUser(crewId);
         }
 
-        List<Membership> allMemberships = membershipRepository.findAllByCrewIdWithUser(crewId);
-
-        MemberResponse leader = allMemberships.stream()
-            .filter(m -> m.getRole() == CrewRole.LEADER)
-            .findFirst()
-            .map(MemberResponse::from)
-            .orElse(null);
-
-        List<MemberResponse> staff = allMemberships.stream()
-            .filter(m -> m.getRole() == CrewRole.STAFF)
-            .map(MemberResponse::from)
-            .toList();
-
-        List<MemberResponse> members = allMemberships.stream()
-            .filter(m -> m.getRole() == CrewRole.MEMBER)
-            .map(MemberResponse::from)
-            .toList();
-
-        return CrewMembersResponse.of(leader, staff, members);
+        return CrewMembersResponse.from(memberships);
     }
 
     @Transactional(readOnly = true)

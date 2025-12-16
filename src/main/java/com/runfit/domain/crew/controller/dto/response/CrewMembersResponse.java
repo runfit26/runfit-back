@@ -1,17 +1,15 @@
 package com.runfit.domain.crew.controller.dto.response;
 
+import com.runfit.domain.crew.entity.Membership;
 import java.util.List;
 
 public record CrewMembersResponse(
-    MemberResponse leader,
-    List<MemberResponse> staff,
     List<MemberResponse> members
 ) {
-    public static CrewMembersResponse of(
-        MemberResponse leader,
-        List<MemberResponse> staff,
-        List<MemberResponse> members
-    ) {
-        return new CrewMembersResponse(leader, staff, members);
+    public static CrewMembersResponse from(List<Membership> memberships) {
+        List<MemberResponse> members = memberships.stream()
+            .map(MemberResponse::from)
+            .toList();
+        return new CrewMembersResponse(members);
     }
 }
