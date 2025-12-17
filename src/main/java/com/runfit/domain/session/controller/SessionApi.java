@@ -118,13 +118,15 @@ public interface SessionApi {
         @Parameter(description = "세션 ID") @PathVariable Long sessionId
     );
 
-    @Operation(summary = "세션 참가자 목록 조회", description = "해당 세션에 참가 신청한 사용자 목록을 조회합니다.")
+    @Operation(summary = "세션 참가자 목록 조회", description = "해당 세션에 참가 신청한 사용자 목록을 조회합니다. 역할 필터링 및 정렬을 지원합니다.")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "조회 성공"),
         @ApiResponse(responseCode = "404", description = "세션 없음")
     })
     ResponseEntity<ResponseWrapper<SessionParticipantsResponse>> getSessionParticipants(
-        @Parameter(description = "세션 ID") @PathVariable Long sessionId
+        @Parameter(description = "세션 ID") @PathVariable Long sessionId,
+        @Parameter(description = "역할 필터 (leader, staff, general 중 하나)") @RequestParam(required = false) String role,
+        @Parameter(description = "정렬 (joinedAtAsc: 참가 순(기본값), roleAsc: 역할 순(리더→운영진→멤버))") @RequestParam(required = false) String sort
     );
 
     @Operation(summary = "세션 정보 수정", description = "세션 정보를 수정합니다. 해당 크루의 STAFF 이상만 가능합니다.")

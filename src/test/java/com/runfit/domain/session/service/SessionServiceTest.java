@@ -416,7 +416,7 @@ class SessionServiceTest {
     class GetSessionParticipants {
 
         @Test
-        @DisplayName("성공")
+        @DisplayName("성공 - 기본 조회 (파라미터 없음)")
         void success() {
             // given
             SessionParticipant participant1 = SessionParticipant.create(session, hostUser);
@@ -434,7 +434,7 @@ class SessionServiceTest {
                 .willReturn(Optional.of(memberMembership));
 
             // when
-            SessionParticipantsResponse response = sessionService.getSessionParticipants(1L);
+            SessionParticipantsResponse response = sessionService.getSessionParticipants(1L, null, null);
 
             // then
             assertThat(response.totalCount()).isEqualTo(2);
@@ -446,6 +446,76 @@ class SessionServiceTest {
         }
 
         @Test
+        @DisplayName("성공 - 역할별 필터링 (staff)")
+        void success_filterByRole() {
+            // given
+            SessionParticipant participant1 = SessionParticipant.create(session, hostUser);
+            ReflectionTestUtils.setField(participant1, "joinedAt", LocalDateTime.now().minusDays(2));
+
+            given(sessionRepository.findByIdAndNotDeleted(1L)).willReturn(Optional.of(session));
+            given(sessionParticipantRepository.findAllBySessionIdAndRoleWithUser(1L, 1L, CrewRole.STAFF))
+                .willReturn(List.of(participant1));
+            given(membershipRepository.findByUserUserIdAndCrewId(1L, 1L))
+                .willReturn(Optional.of(staffMembership));
+
+            // when
+            SessionParticipantsResponse response = sessionService.getSessionParticipants(1L, "staff", null);
+
+            // then
+            assertThat(response.totalCount()).isEqualTo(1);
+            assertThat(response.participants()).hasSize(1);
+            assertThat(response.participants().get(0).userId()).isEqualTo(1L);
+            assertThat(response.participants().get(0).role()).isEqualTo(CrewRole.STAFF);
+        }
+
+        @Test
+        @DisplayName("성공 - 역할순 정렬 (roleAsc)")
+        void success_sortByRole() {
+            // given
+            SessionParticipant participant1 = SessionParticipant.create(session, hostUser);
+            ReflectionTestUtils.setField(participant1, "joinedAt", LocalDateTime.now().minusDays(2));
+
+            SessionParticipant participant2 = SessionParticipant.create(session, participantUser);
+            ReflectionTestUtils.setField(participant2, "joinedAt", LocalDateTime.now().minusDays(1));
+
+            given(sessionRepository.findByIdAndNotDeleted(1L)).willReturn(Optional.of(session));
+            given(sessionParticipantRepository.findAllBySessionIdWithUserOrderByRole(1L, 1L))
+                .willReturn(List.of(participant1, participant2));
+            given(membershipRepository.findByUserUserIdAndCrewId(1L, 1L))
+                .willReturn(Optional.of(staffMembership));
+            given(membershipRepository.findByUserUserIdAndCrewId(2L, 1L))
+                .willReturn(Optional.of(memberMembership));
+
+            // when
+            SessionParticipantsResponse response = sessionService.getSessionParticipants(1L, null, "roleAsc");
+
+            // then
+            assertThat(response.totalCount()).isEqualTo(2);
+            assertThat(response.participants()).hasSize(2);
+        }
+
+        @Test
+        @DisplayName("성공 - 역할 필터 + 역할순 정렬")
+        void success_filterAndSortByRole() {
+            // given
+            SessionParticipant participant1 = SessionParticipant.create(session, hostUser);
+            ReflectionTestUtils.setField(participant1, "joinedAt", LocalDateTime.now().minusDays(2));
+
+            given(sessionRepository.findByIdAndNotDeleted(1L)).willReturn(Optional.of(session));
+            given(sessionParticipantRepository.findAllBySessionIdAndRoleWithUserOrderByRole(1L, 1L, CrewRole.STAFF))
+                .willReturn(List.of(participant1));
+            given(membershipRepository.findByUserUserIdAndCrewId(1L, 1L))
+                .willReturn(Optional.of(staffMembership));
+
+            // when
+            SessionParticipantsResponse response = sessionService.getSessionParticipants(1L, "staff", "roleAsc");
+
+            // then
+            assertThat(response.totalCount()).isEqualTo(1);
+            assertThat(response.participants()).hasSize(1);
+        }
+
+        @Test
         @DisplayName("성공 - 참가자 없음")
         void success_noParticipants() {
             // given
@@ -454,7 +524,7 @@ class SessionServiceTest {
                 .willReturn(List.of());
 
             // when
-            SessionParticipantsResponse response = sessionService.getSessionParticipants(1L);
+            SessionParticipantsResponse response = sessionService.getSessionParticipants(1L, null, null);
 
             // then
             assertThat(response.totalCount()).isEqualTo(0);
@@ -468,9 +538,21 @@ class SessionServiceTest {
             given(sessionRepository.findByIdAndNotDeleted(999L)).willReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> sessionService.getSessionParticipants(999L))
+            assertThatThrownBy(() -> sessionService.getSessionParticipants(999L, null, null))
                 .isInstanceOf(BusinessException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.SESSION_NOT_FOUND);
+        }
+
+        @Test
+        @DisplayName("실패 - 잘못된 역할 파라미터")
+        void fail_invalidRole() {
+            // given
+            given(sessionRepository.findByIdAndNotDeleted(1L)).willReturn(Optional.of(session));
+
+            // when & then
+            assertThatThrownBy(() -> sessionService.getSessionParticipants(1L, "invalid", null))
+                .isInstanceOf(BusinessException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.BAD_REQUEST);
         }
     }
 

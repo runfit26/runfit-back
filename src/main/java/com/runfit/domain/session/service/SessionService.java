@@ -180,17 +180,29 @@ public class SessionService {
     }
 
     @Transactional(readOnly = true)
-    public SessionParticipantsResponse getSessionParticipants(Long sessionId) {
+    public SessionParticipantsResponse getSessionParticipants(Long sessionId, String role, String sort) {
         Session session = sessionRepository.findByIdAndNotDeleted(sessionId)
             .orElseThrow(() -> new BusinessException(ErrorCode.SESSION_NOT_FOUND));
 
         Long crewId = session.getCrew().getId();
 
-        List<SessionParticipant> participants = sessionParticipantRepository.findAllBySessionIdWithUser(sessionId);
+        boolean sortByRole = "roleAsc".equalsIgnoreCase(sort);
+        List<SessionParticipant> participants;
+
+        if (role != null) {
+            CrewRole crewRole = parseRole(role);
+            participants = sortByRole
+                ? sessionParticipantRepository.findAllBySessionIdAndRoleWithUserOrderByRole(sessionId, crewId, crewRole)
+                : sessionParticipantRepository.findAllBySessionIdAndRoleWithUser(sessionId, crewId, crewRole);
+        } else {
+            participants = sortByRole
+                ? sessionParticipantRepository.findAllBySessionIdWithUserOrderByRole(sessionId, crewId)
+                : sessionParticipantRepository.findAllBySessionIdWithUser(sessionId);
+        }
 
         List<SessionParticipantResponse> participantResponses = participants.stream()
             .map(sp -> {
-                CrewRole role = membershipRepository.findByUserUserIdAndCrewId(sp.getUser().getUserId(), crewId)
+                CrewRole memberRole = membershipRepository.findByUserUserIdAndCrewId(sp.getUser().getUserId(), crewId)
                     .map(Membership::getRole)
                     .orElse(CrewRole.MEMBER);
 
@@ -198,13 +210,22 @@ public class SessionService {
                     sp.getUser().getUserId(),
                     sp.getUser().getName(),
                     sp.getUser().getImage(),
-                    role,
+                    memberRole,
                     sp.getJoinedAt()
                 );
             })
             .toList();
 
         return SessionParticipantsResponse.of(participantResponses);
+    }
+
+    private CrewRole parseRole(String role) {
+        return switch (role.toLowerCase()) {
+            case "leader" -> CrewRole.LEADER;
+            case "staff" -> CrewRole.STAFF;
+            case "general", "member" -> CrewRole.MEMBER;
+            default -> throw new BusinessException(ErrorCode.BAD_REQUEST);
+        };
     }
 
     @Transactional

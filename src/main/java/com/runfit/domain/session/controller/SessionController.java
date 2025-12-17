@@ -131,9 +131,11 @@ public class SessionController implements SessionApi {
     @Override
     @GetMapping("/{sessionId}/participants")
     public ResponseEntity<ResponseWrapper<SessionParticipantsResponse>> getSessionParticipants(
-        @PathVariable Long sessionId
+        @PathVariable Long sessionId,
+        @RequestParam(required = false) String role,
+        @RequestParam(required = false) String sort
     ) {
-        SessionParticipantsResponse response = sessionService.getSessionParticipants(sessionId);
+        SessionParticipantsResponse response = sessionService.getSessionParticipants(sessionId, role, sort);
         return ResponseEntity.ok(ResponseWrapper.success(response));
     }
 

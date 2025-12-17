@@ -18,6 +18,16 @@ spring:
     compose:
       enabled: false
 
+  cloud:
+    aws:
+      s3:
+        bucket: test-bucket
+      region:
+        static: ap-northeast-2
+      credentials:
+        access-key: test-access-key
+        secret-key: test-secret-key
+
 jwt:
   access:
     secret: test-jwt-access-secret-key-for-testing-purposes-only

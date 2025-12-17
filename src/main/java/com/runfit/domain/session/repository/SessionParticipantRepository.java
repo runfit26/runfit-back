@@ -1,5 +1,6 @@
 package com.runfit.domain.session.repository;
 
+import com.runfit.domain.crew.entity.CrewRole;
 import com.runfit.domain.session.entity.Session;
 import com.runfit.domain.session.entity.SessionParticipant;
 import com.runfit.domain.user.entity.User;
@@ -26,4 +27,33 @@ public interface SessionParticipantRepository extends JpaRepository<SessionParti
            "WHERE sp.session.id = :sessionId " +
            "ORDER BY sp.joinedAt ASC")
     List<SessionParticipant> findAllBySessionIdWithUser(@Param("sessionId") Long sessionId);
+
+    @Query("SELECT sp FROM SessionParticipant sp " +
+           "JOIN FETCH sp.user u " +
+           "JOIN Membership m ON m.user = u AND m.crew.id = :crewId " +
+           "WHERE sp.session.id = :sessionId AND m.role = :role " +
+           "ORDER BY sp.joinedAt ASC")
+    List<SessionParticipant> findAllBySessionIdAndRoleWithUser(
+        @Param("sessionId") Long sessionId,
+        @Param("crewId") Long crewId,
+        @Param("role") CrewRole role);
+
+    @Query("SELECT sp FROM SessionParticipant sp " +
+           "JOIN FETCH sp.user u " +
+           "JOIN Membership m ON m.user = u AND m.crew.id = :crewId " +
+           "WHERE sp.session.id = :sessionId " +
+           "ORDER BY CASE m.role WHEN 'LEADER' THEN 1 WHEN 'STAFF' THEN 2 ELSE 3 END, sp.joinedAt ASC")
+    List<SessionParticipant> findAllBySessionIdWithUserOrderByRole(
+        @Param("sessionId") Long sessionId,
+        @Param("crewId") Long crewId);
+
+    @Query("SELECT sp FROM SessionParticipant sp " +
+           "JOIN FETCH sp.user u " +
+           "JOIN Membership m ON m.user = u AND m.crew.id = :crewId " +
+           "WHERE sp.session.id = :sessionId AND m.role = :role " +
+           "ORDER BY CASE m.role WHEN 'LEADER' THEN 1 WHEN 'STAFF' THEN 2 ELSE 3 END, sp.joinedAt ASC")
+    List<SessionParticipant> findAllBySessionIdAndRoleWithUserOrderByRole(
+        @Param("sessionId") Long sessionId,
+        @Param("crewId") Long crewId,
+        @Param("role") CrewRole role);
 }
