@@ -210,6 +210,7 @@ public class SessionService {
                     sp.getUser().getUserId(),
                     sp.getUser().getName(),
                     sp.getUser().getImage(),
+                    sp.getUser().getIntroduction(),
                     memberRole,
                     sp.getJoinedAt()
                 );
@@ -301,6 +302,7 @@ public class SessionService {
                     sp.getUser().getUserId(),
                     sp.getUser().getName(),
                     sp.getUser().getImage(),
+                    sp.getUser().getIntroduction(),
                     role,
                     sp.getJoinedAt()
                 ));

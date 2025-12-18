@@ -7,6 +7,7 @@ public record SessionParticipantResponse(
     Long userId,
     String name,
     String profileImage,
+    String introduction,
     CrewRole role,
     LocalDateTime joinedAt
 ) {
