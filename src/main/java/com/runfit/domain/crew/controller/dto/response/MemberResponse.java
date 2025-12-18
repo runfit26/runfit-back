@@ -8,6 +8,7 @@ public record MemberResponse(
     Long userId,
     String name,
     String profileImage,
+    String introduction,
     CrewRole role,
     LocalDateTime joinedAt
 ) {
@@ -16,6 +17,7 @@ public record MemberResponse(
             membership.getUser().getUserId(),
             membership.getUser().getName(),
             membership.getUser().getImage(),
+            membership.getUser().getIntroduction(),
             membership.getRole(),
             membership.getJoinedAt()
         );
