@@ -6,7 +6,7 @@ import com.runfit.domain.crew.entity.Crew;
 import com.runfit.domain.crew.entity.Membership;
 import com.runfit.domain.crew.repository.CrewRepository;
 import com.runfit.domain.crew.repository.MembershipRepository;
-import com.runfit.domain.session.controller.dto.response.SessionListResponse;
+import com.runfit.domain.user.controller.dto.response.ParticipatingSessionResponse;
 import com.runfit.domain.session.entity.Session;
 import com.runfit.domain.session.entity.SessionLevel;
 import com.runfit.domain.session.entity.SessionParticipant;
@@ -80,7 +80,7 @@ class SessionParticipantRepositoryCustomTest {
             ));
 
             // when
-            Slice<SessionListResponse> result = sessionParticipantRepository.findParticipatingSessionsByUserId(
+            Slice<ParticipatingSessionResponse> result = sessionParticipantRepository.findParticipatingSessionsByUserId(
                 user1.getUserId(), null, PageRequest.of(0, 10)
             );
 
@@ -104,7 +104,7 @@ class SessionParticipantRepositoryCustomTest {
             sessionParticipantRepository.save(SessionParticipant.create(session, user1));
 
             // when
-            Slice<SessionListResponse> result = sessionParticipantRepository.findParticipatingSessionsByUserId(
+            Slice<ParticipatingSessionResponse> result = sessionParticipantRepository.findParticipatingSessionsByUserId(
                 user1.getUserId(), null, PageRequest.of(0, 10)
             );
 
@@ -137,14 +137,14 @@ class SessionParticipantRepositoryCustomTest {
             sessionParticipantRepository.save(SessionParticipant.create(otherSession, user1));
 
             // when
-            Slice<SessionListResponse> result = sessionParticipantRepository.findParticipatingSessionsByUserId(
+            Slice<ParticipatingSessionResponse> result = sessionParticipantRepository.findParticipatingSessionsByUserId(
                 user1.getUserId(), null, PageRequest.of(0, 10)
             );
 
             // then
             assertThat(result.getContent()).hasSize(2);
             assertThat(result.getContent())
-                .extracting(SessionListResponse::name)
+                .extracting(ParticipatingSessionResponse::name)
                 .containsExactlyInAnyOrder("내가 만든 세션", "다른 사람 세션");
         }
 
@@ -163,7 +163,7 @@ class SessionParticipantRepositoryCustomTest {
             sessionParticipantRepository.save(SessionParticipant.create(session, user1));
 
             // when
-            Slice<SessionListResponse> result = sessionParticipantRepository.findParticipatingSessionsByUserId(
+            Slice<ParticipatingSessionResponse> result = sessionParticipantRepository.findParticipatingSessionsByUserId(
                 user1.getUserId(), null, PageRequest.of(0, 10)
             );
 
@@ -195,7 +195,7 @@ class SessionParticipantRepositoryCustomTest {
             ));
 
             // when
-            Slice<SessionListResponse> result = sessionParticipantRepository.findParticipatingSessionsByUserId(
+            Slice<ParticipatingSessionResponse> result = sessionParticipantRepository.findParticipatingSessionsByUserId(
                 user1.getUserId(), "SCHEDULED", PageRequest.of(0, 10)
             );
 
@@ -227,7 +227,7 @@ class SessionParticipantRepositoryCustomTest {
             ));
 
             // when
-            Slice<SessionListResponse> result = sessionParticipantRepository.findParticipatingSessionsByUserId(
+            Slice<ParticipatingSessionResponse> result = sessionParticipantRepository.findParticipatingSessionsByUserId(
                 user1.getUserId(), "COMPLETED", PageRequest.of(0, 10)
             );
 
@@ -249,7 +249,7 @@ class SessionParticipantRepositoryCustomTest {
             ));
 
             // when
-            Slice<SessionListResponse> result = sessionParticipantRepository.findParticipatingSessionsByUserId(
+            Slice<ParticipatingSessionResponse> result = sessionParticipantRepository.findParticipatingSessionsByUserId(
                 user1.getUserId(), "scheduled", PageRequest.of(0, 10)
             );
 
@@ -280,7 +280,7 @@ class SessionParticipantRepositoryCustomTest {
             sessionRepository.save(deletedSession);
 
             // when
-            Slice<SessionListResponse> result = sessionParticipantRepository.findParticipatingSessionsByUserId(
+            Slice<ParticipatingSessionResponse> result = sessionParticipantRepository.findParticipatingSessionsByUserId(
                 user1.getUserId(), null, PageRequest.of(0, 10)
             );
 
@@ -295,7 +295,7 @@ class SessionParticipantRepositoryCustomTest {
             // given - user1은 아무 세션에도 참여하지 않음
 
             // when
-            Slice<SessionListResponse> result = sessionParticipantRepository.findParticipatingSessionsByUserId(
+            Slice<ParticipatingSessionResponse> result = sessionParticipantRepository.findParticipatingSessionsByUserId(
                 user1.getUserId(), null, PageRequest.of(0, 10)
             );
 
@@ -319,7 +319,7 @@ class SessionParticipantRepositoryCustomTest {
             }
 
             // when
-            Slice<SessionListResponse> result = sessionParticipantRepository.findParticipatingSessionsByUserId(
+            Slice<ParticipatingSessionResponse> result = sessionParticipantRepository.findParticipatingSessionsByUserId(
                 user1.getUserId(), null, PageRequest.of(0, 3)
             );
 
@@ -349,7 +349,7 @@ class SessionParticipantRepositoryCustomTest {
             ));
 
             // when
-            Slice<SessionListResponse> result = sessionParticipantRepository.findParticipatingSessionsByUserId(
+            Slice<ParticipatingSessionResponse> result = sessionParticipantRepository.findParticipatingSessionsByUserId(
                 user1.getUserId(), null, PageRequest.of(0, 10)
             );
 
@@ -374,7 +374,7 @@ class SessionParticipantRepositoryCustomTest {
             sessionParticipantRepository.save(SessionParticipant.create(session, hostUser));
 
             // when
-            Slice<SessionListResponse> result = sessionParticipantRepository.findParticipatingSessionsByUserId(
+            Slice<ParticipatingSessionResponse> result = sessionParticipantRepository.findParticipatingSessionsByUserId(
                 user1.getUserId(), null, PageRequest.of(0, 10)
             );
 
@@ -404,7 +404,7 @@ class SessionParticipantRepositoryCustomTest {
             ));
 
             // when
-            Slice<SessionListResponse> result = sessionParticipantRepository.findParticipatingSessionsByUserId(
+            Slice<ParticipatingSessionResponse> result = sessionParticipantRepository.findParticipatingSessionsByUserId(
                 user1.getUserId(), null, PageRequest.of(0, 10)
             );
 
@@ -436,7 +436,7 @@ class SessionParticipantRepositoryCustomTest {
             ));
 
             // when
-            Slice<SessionListResponse> result = sessionParticipantRepository.findParticipatingSessionsByUserId(
+            Slice<ParticipatingSessionResponse> result = sessionParticipantRepository.findParticipatingSessionsByUserId(
                 user1.getUserId(), "INVALID_STATUS", PageRequest.of(0, 10)
             );
 
@@ -457,7 +457,7 @@ class SessionParticipantRepositoryCustomTest {
             ));
 
             // when
-            Slice<SessionListResponse> result = sessionParticipantRepository.findParticipatingSessionsByUserId(
+            Slice<ParticipatingSessionResponse> result = sessionParticipantRepository.findParticipatingSessionsByUserId(
                 user1.getUserId(), null, PageRequest.of(0, 10)
             );
 

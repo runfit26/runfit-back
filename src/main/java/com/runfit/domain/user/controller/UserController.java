@@ -7,6 +7,7 @@ import com.runfit.domain.auth.model.AuthUser;
 import com.runfit.domain.crew.controller.dto.response.CrewListResponse;
 import com.runfit.domain.review.controller.dto.response.ReviewResponse;
 import com.runfit.domain.session.controller.dto.response.SessionListResponse;
+import com.runfit.domain.user.controller.dto.response.ParticipatingSessionResponse;
 import com.runfit.domain.user.controller.dto.request.UserUpdateRequest;
 import com.runfit.domain.user.controller.dto.response.LikedSessionResponse;
 import com.runfit.domain.user.controller.dto.response.MyCrewResponse;
@@ -121,13 +122,13 @@ public class UserController implements UserApi {
 
     @Override
     @GetMapping("/me/sessions/participating")
-    public ResponseEntity<ResponseWrapper<SliceResponse<SessionListResponse>>> getMyParticipatingSessions(
+    public ResponseEntity<ResponseWrapper<SliceResponse<ParticipatingSessionResponse>>> getMyParticipatingSessions(
         @AuthenticationPrincipal AuthUser user,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size,
         @RequestParam(required = false) String status
     ) {
-        Slice<SessionListResponse> result = userService.getMyParticipatingSessions(user.userId(), status, PageRequest.of(page, size));
+        Slice<ParticipatingSessionResponse> result = userService.getMyParticipatingSessions(user.userId(), status, PageRequest.of(page, size));
         return ResponseEntity.ok(ResponseWrapper.success(SliceResponse.from(result)));
     }
 }

@@ -12,7 +12,7 @@ import com.runfit.domain.crew.repository.MembershipRepository;
 import com.runfit.domain.review.controller.dto.response.ReviewResponse;
 import com.runfit.domain.review.service.ReviewService;
 import com.runfit.domain.session.controller.dto.response.CoordsResponse;
-import com.runfit.domain.session.controller.dto.response.SessionListResponse;
+import com.runfit.domain.user.controller.dto.response.ParticipatingSessionResponse;
 import com.runfit.domain.session.entity.SessionLevel;
 import com.runfit.domain.session.entity.SessionStatus;
 import com.runfit.domain.session.repository.SessionLikeRepository;
@@ -531,16 +531,16 @@ class UserServiceTest {
             Long userId = 1L;
             PageRequest pageable = PageRequest.of(0, 10);
 
-            SessionListResponse session1 = new SessionListResponse(
+            ParticipatingSessionResponse session1 = new ParticipatingSessionResponse(
                 1L, 1L, 2L, "한강 야간 러닝", "https://example.com/session1.jpg",
                 "서울", "송파구", null, new CoordsResponse(37.5145, 127.1017),
                 LocalDateTime.now().plusDays(7), LocalDateTime.now().plusDays(6),
                 SessionLevel.BEGINNER, SessionStatus.OPEN, 390, 20, 12L, true, LocalDateTime.now(),
-                4.5,
+                4.5, false,
                 List.of()
             );
 
-            Slice<SessionListResponse> mockSlice = new SliceImpl<>(
+            Slice<ParticipatingSessionResponse> mockSlice = new SliceImpl<>(
                 List.of(session1), pageable, false
             );
 
@@ -548,7 +548,7 @@ class UserServiceTest {
                 .willReturn(mockSlice);
 
             // when
-            Slice<SessionListResponse> result = userService.getMyParticipatingSessions(userId, null, pageable);
+            Slice<ParticipatingSessionResponse> result = userService.getMyParticipatingSessions(userId, null, pageable);
 
             // then
             assertThat(result.getContent()).hasSize(1);
@@ -564,16 +564,16 @@ class UserServiceTest {
             String status = "SCHEDULED";
             PageRequest pageable = PageRequest.of(0, 10);
 
-            SessionListResponse session = new SessionListResponse(
+            ParticipatingSessionResponse session = new ParticipatingSessionResponse(
                 1L, 1L, 2L, "예정 세션", null, "서울", "강남구", null,
                 new CoordsResponse(37.4979, 127.0276),
                 LocalDateTime.now().plusDays(7), LocalDateTime.now().plusDays(6),
                 SessionLevel.INTERMEDIATE, SessionStatus.OPEN, 360, 15, 8L, false, LocalDateTime.now(),
-                null,
+                null, false,
                 List.of()
             );
 
-            Slice<SessionListResponse> mockSlice = new SliceImpl<>(
+            Slice<ParticipatingSessionResponse> mockSlice = new SliceImpl<>(
                 List.of(session), pageable, false
             );
 
@@ -581,7 +581,7 @@ class UserServiceTest {
                 .willReturn(mockSlice);
 
             // when
-            Slice<SessionListResponse> result = userService.getMyParticipatingSessions(userId, status, pageable);
+            Slice<ParticipatingSessionResponse> result = userService.getMyParticipatingSessions(userId, status, pageable);
 
             // then
             assertThat(result.getContent()).hasSize(1);
@@ -596,16 +596,16 @@ class UserServiceTest {
             String status = "COMPLETED";
             PageRequest pageable = PageRequest.of(0, 10);
 
-            SessionListResponse session = new SessionListResponse(
+            ParticipatingSessionResponse session = new ParticipatingSessionResponse(
                 2L, 1L, 2L, "완료 세션", null, "서울", "마포구", null,
                 new CoordsResponse(37.5547, 126.9106),
                 LocalDateTime.now().minusDays(7), LocalDateTime.now().minusDays(8),
                 SessionLevel.ADVANCED, SessionStatus.CLOSED, 330, 10, 10L, true, LocalDateTime.now().minusDays(14),
-                4.0,
+                4.0, true,
                 List.of()
             );
 
-            Slice<SessionListResponse> mockSlice = new SliceImpl<>(
+            Slice<ParticipatingSessionResponse> mockSlice = new SliceImpl<>(
                 List.of(session), pageable, false
             );
 
@@ -613,7 +613,7 @@ class UserServiceTest {
                 .willReturn(mockSlice);
 
             // when
-            Slice<SessionListResponse> result = userService.getMyParticipatingSessions(userId, status, pageable);
+            Slice<ParticipatingSessionResponse> result = userService.getMyParticipatingSessions(userId, status, pageable);
 
             // then
             assertThat(result.getContent()).hasSize(1);
@@ -627,13 +627,13 @@ class UserServiceTest {
             Long userId = 1L;
             PageRequest pageable = PageRequest.of(0, 10);
 
-            Slice<SessionListResponse> mockSlice = new SliceImpl<>(List.of(), pageable, false);
+            Slice<ParticipatingSessionResponse> mockSlice = new SliceImpl<>(List.of(), pageable, false);
 
             given(sessionParticipantRepository.findParticipatingSessionsByUserId(userId, null, pageable))
                 .willReturn(mockSlice);
 
             // when
-            Slice<SessionListResponse> result = userService.getMyParticipatingSessions(userId, null, pageable);
+            Slice<ParticipatingSessionResponse> result = userService.getMyParticipatingSessions(userId, null, pageable);
 
             // then
             assertThat(result.getContent()).isEmpty();

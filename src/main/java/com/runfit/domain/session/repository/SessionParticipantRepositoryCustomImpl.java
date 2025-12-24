@@ -13,10 +13,10 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.runfit.domain.session.controller.dto.response.CoordsResponse;
-import com.runfit.domain.session.controller.dto.response.SessionListResponse;
 import com.runfit.domain.session.controller.dto.response.SessionParticipantResponse;
 import com.runfit.domain.session.entity.QSessionParticipant;
 import com.runfit.domain.session.entity.SessionParticipant;
+import com.runfit.domain.user.controller.dto.response.ParticipatingSessionResponse;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -33,14 +33,14 @@ public class SessionParticipantRepositoryCustomImpl implements SessionParticipan
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Slice<SessionListResponse> findParticipatingSessionsByUserId(
+    public Slice<ParticipatingSessionResponse> findParticipatingSessionsByUserId(
         Long userId, String status, Pageable pageable) {
 
         QSessionParticipant participantCount = new QSessionParticipant("participantCount");
         QSessionParticipant participantCheck = new QSessionParticipant("participantCheck");
 
-        List<SessionListResponse> content = queryFactory
-            .select(Projections.constructor(SessionListResponse.class,
+        List<ParticipatingSessionResponse> content = queryFactory
+            .select(Projections.constructor(ParticipatingSessionResponse.class,
                 session.id,
                 session.crew.id,
                 session.hostUser.userId,
@@ -83,6 +83,15 @@ public class SessionParticipantRepositoryCustomImpl implements SessionParticipan
                             .where(review.session.eq(session))
                     ),
                     "ranks"
+                ),
+                ExpressionUtils.as(
+                    JPAExpressions.selectOne()
+                        .from(review)
+                        .where(
+                            review.session.eq(session),
+                            review.user.userId.eq(userId)
+                        ).exists(),
+                    "reviewed"
                 ),
                 Expressions.constant(Collections.<SessionParticipantResponse>emptyList())
             ))

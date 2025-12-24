@@ -7,6 +7,7 @@ import com.runfit.domain.crew.repository.MembershipRepository;
 import com.runfit.domain.review.controller.dto.response.ReviewResponse;
 import com.runfit.domain.review.service.ReviewService;
 import com.runfit.domain.session.controller.dto.response.SessionListResponse;
+import com.runfit.domain.user.controller.dto.response.ParticipatingSessionResponse;
 import com.runfit.domain.session.repository.SessionLikeRepository;
 import com.runfit.domain.session.repository.SessionParticipantRepository;
 import com.runfit.domain.session.repository.SessionRepository;
@@ -87,7 +88,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Slice<SessionListResponse> getMyParticipatingSessions(Long userId, String status, Pageable pageable) {
+    public Slice<ParticipatingSessionResponse> getMyParticipatingSessions(Long userId, String status, Pageable pageable) {
         return sessionParticipantRepository.findParticipatingSessionsByUserId(userId, status, pageable);
     }
 
