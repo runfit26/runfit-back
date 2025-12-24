@@ -717,6 +717,7 @@ class SessionServiceTest {
                 new CoordsResponse(37.5145, 127.1017),
                 LocalDateTime.now().plusDays(7), LocalDateTime.now().plusDays(6),
                 SessionLevel.BEGINNER, SessionStatus.OPEN, 390, 20, 5L, false, LocalDateTime.now(),
+                4.5,
                 List.of()
             );
 
@@ -753,6 +754,7 @@ class SessionServiceTest {
                 new CoordsResponse(37.5145, 127.1017),
                 LocalDateTime.now().plusDays(7), LocalDateTime.now().plusDays(6),
                 SessionLevel.BEGINNER, SessionStatus.OPEN, 390, 20, 5L, false, LocalDateTime.now(),
+                4.5,
                 List.of()
             );
 
@@ -828,6 +830,7 @@ class SessionServiceTest {
                 new CoordsResponse(37.5145, 127.1017),
                 LocalDateTime.now().plusDays(7), LocalDateTime.now().plusDays(6),
                 SessionLevel.BEGINNER, SessionStatus.OPEN, 390, 20, 5L, false, LocalDateTime.now(),
+                4.5,
                 List.of()
             );
 

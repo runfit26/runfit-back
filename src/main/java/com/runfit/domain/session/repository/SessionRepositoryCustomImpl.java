@@ -1,6 +1,7 @@
 package com.runfit.domain.session.repository;
 
 import static com.runfit.domain.crew.entity.QCrew.crew;
+import static com.runfit.domain.review.entity.QReview.review;
 import static com.runfit.domain.session.entity.QSession.session;
 import static com.runfit.domain.session.entity.QSessionLike.sessionLike;
 import static com.runfit.domain.session.entity.QSessionParticipant.sessionParticipant;
@@ -73,6 +74,15 @@ public class SessionRepositoryCustomImpl implements SessionRepositoryCustom {
                         "liked"
                     ) : Expressions.asBoolean(false),
                 session.createdAt,
+                ExpressionUtils.as(
+                    Expressions.numberTemplate(Double.class,
+                        "ROUND({0}, 1)",
+                        JPAExpressions.select(review.ranks.avg())
+                            .from(review)
+                            .where(review.session.eq(session))
+                    ),
+                    "ranks"
+                ),
                 Expressions.constant(Collections.<SessionParticipantResponse>emptyList())
             ))
             .from(session)
@@ -201,6 +211,15 @@ public class SessionRepositoryCustomImpl implements SessionRepositoryCustom {
                     "liked"
                 ),
                 session.createdAt,
+                ExpressionUtils.as(
+                    Expressions.numberTemplate(Double.class,
+                        "ROUND({0}, 1)",
+                        JPAExpressions.select(review.ranks.avg())
+                            .from(review)
+                            .where(review.session.eq(session))
+                    ),
+                    "ranks"
+                ),
                 Expressions.constant(Collections.<SessionParticipantResponse>emptyList())
             ))
             .from(session)
