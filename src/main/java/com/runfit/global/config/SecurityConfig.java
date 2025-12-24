@@ -47,6 +47,7 @@ public class SecurityConfig {
         "/api/crews/{crewId}/members",
         "/api/crews/{crewId}/members/count",
         "/api/crews/{crewId}/members/{userId}/role",
+        "/api/crews/{crewId}/reviews",
     };
 
     private final String[] sessionPublicUrl = {
