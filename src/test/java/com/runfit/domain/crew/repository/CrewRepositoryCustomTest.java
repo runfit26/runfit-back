@@ -14,6 +14,7 @@ import com.runfit.domain.user.repository.UserRepository;
 import com.runfit.global.config.AuditConfig;
 import com.runfit.global.config.QueryDslConfig;
 import java.time.LocalDateTime;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -79,7 +80,7 @@ class CrewRepositoryCustomTest {
     @DisplayName("지역으로 필터링 성공")
     void searchCrews_byRegion_success() {
         // given
-        CrewSearchCondition condition = CrewSearchCondition.of("서울", null, null);
+        CrewSearchCondition condition = CrewSearchCondition.of(List.of("서울"), null, null);
 
         // when
         Slice<CrewListResponse> result = crewRepository.searchCrews(condition, PageRequest.of(0, 10));
@@ -107,7 +108,7 @@ class CrewRepositoryCustomTest {
     @DisplayName("지역 + 키워드 복합 검색 성공")
     void searchCrews_byRegionAndKeyword_success() {
         // given
-        CrewSearchCondition condition = CrewSearchCondition.of("서울", "러닝", null);
+        CrewSearchCondition condition = CrewSearchCondition.of(List.of("서울"), "러닝", null);
 
         // when
         Slice<CrewListResponse> result = crewRepository.searchCrews(condition, PageRequest.of(0, 10));
@@ -169,7 +170,7 @@ class CrewRepositoryCustomTest {
     @DisplayName("검색 결과가 없을 때 빈 리스트 반환")
     void searchCrews_noResult() {
         // given
-        CrewSearchCondition condition = CrewSearchCondition.of("제주", null, null);
+        CrewSearchCondition condition = CrewSearchCondition.of(List.of("제주"), null, null);
 
         // when
         Slice<CrewListResponse> result = crewRepository.searchCrews(condition, PageRequest.of(0, 10));

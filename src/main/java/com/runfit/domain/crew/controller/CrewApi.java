@@ -19,6 +19,7 @@ import com.runfit.domain.crew.controller.dto.response.RoleChangeResponse;
 import com.runfit.domain.review.controller.dto.response.CrewReviewResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import java.util.List;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -48,7 +49,7 @@ public interface CrewApi {
     ResponseEntity<ResponseWrapper<SliceResponse<CrewListResponse>>> searchCrews(
         @Parameter(description = "페이지 번호 (0부터 시작)") @RequestParam(defaultValue = "0") int page,
         @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "20") int size,
-        @Parameter(description = "지역 필터") @RequestParam(required = false) String city,
+        @Parameter(description = "지역 필터 (복수 선택 가능)") @RequestParam(required = false) List<String> city,
         @Parameter(description = "크루명 검색어") @RequestParam(required = false) String keyword,
         @Parameter(description = "정렬 (memberCountDesc: 멤버 많은 순, lastSessionDesc: 최근 세션 순, createdAtDesc: 최근 생성 순(기본값), nameAsc: 이름순 A-Z, nameDesc: 이름순 Z-A)") @RequestParam(required = false) String sort
     );

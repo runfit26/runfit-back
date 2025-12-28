@@ -22,6 +22,7 @@ import com.runfit.domain.review.controller.dto.response.CrewReviewResponse;
 import com.runfit.domain.review.service.ReviewService;
 import jakarta.validation.Valid;
 import java.net.URI;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -62,7 +63,7 @@ public class CrewController implements CrewApi {
     public ResponseEntity<ResponseWrapper<SliceResponse<CrewListResponse>>> searchCrews(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "20") int size,
-        @RequestParam(required = false) String city,
+        @RequestParam(required = false) List<String> city,
         @RequestParam(required = false) String keyword,
         @RequestParam(required = false) String sort
     ) {

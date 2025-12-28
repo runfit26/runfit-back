@@ -3,10 +3,14 @@ package com.runfit.domain.user.service;
 import com.runfit.common.exception.BusinessException;
 import com.runfit.common.exception.ErrorCode;
 import com.runfit.domain.crew.controller.dto.response.CrewListResponse;
+import com.runfit.domain.crew.entity.CrewRole;
+import com.runfit.domain.crew.entity.Membership;
 import com.runfit.domain.crew.repository.MembershipRepository;
 import com.runfit.domain.review.controller.dto.response.ReviewResponse;
 import com.runfit.domain.review.service.ReviewService;
 import com.runfit.domain.session.controller.dto.response.SessionListResponse;
+import com.runfit.domain.session.controller.dto.response.SessionParticipantResponse;
+import com.runfit.domain.session.entity.SessionParticipant;
 import com.runfit.domain.user.controller.dto.response.ParticipatingSessionResponse;
 import com.runfit.domain.session.repository.SessionLikeRepository;
 import com.runfit.domain.session.repository.SessionParticipantRepository;
@@ -18,10 +22,16 @@ import com.runfit.domain.user.controller.dto.response.UserProfileResponse;
 import com.runfit.domain.user.controller.dto.response.UserResponse;
 import com.runfit.domain.user.entity.User;
 import com.runfit.domain.user.repository.UserRepository;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -89,7 +99,75 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Slice<ParticipatingSessionResponse> getMyParticipatingSessions(Long userId, String status, Pageable pageable) {
-        return sessionParticipantRepository.findParticipatingSessionsByUserId(userId, status, pageable);
+        Slice<ParticipatingSessionResponse> sessions = sessionParticipantRepository.findParticipatingSessionsByUserId(userId, status, pageable);
+
+        if (sessions.isEmpty()) {
+            return sessions;
+        }
+
+        List<Long> sessionIds = sessions.getContent().stream()
+            .map(ParticipatingSessionResponse::id)
+            .toList();
+
+        List<SessionParticipant> allParticipants = sessionParticipantRepository.findParticipantsBySessionIds(sessionIds);
+
+        Map<Long, Long> sessionCrewMap = sessions.getContent().stream()
+            .collect(Collectors.toMap(ParticipatingSessionResponse::id, ParticipatingSessionResponse::crewId));
+
+        Map<String, CrewRole> membershipRoleMap = buildMembershipRoleMap(allParticipants, sessionCrewMap);
+
+        Map<Long, List<SessionParticipantResponse>> participantsBySessionId = new HashMap<>();
+        for (SessionParticipant sp : allParticipants) {
+            Long sessionId = sp.getSession().getId();
+            Long crewId = sessionCrewMap.get(sessionId);
+            String key = sp.getUser().getUserId() + "_" + crewId;
+            CrewRole role = membershipRoleMap.getOrDefault(key, CrewRole.MEMBER);
+
+            List<SessionParticipantResponse> sessionParticipants = participantsBySessionId
+                .computeIfAbsent(sessionId, k -> new ArrayList<>());
+
+            if (sessionParticipants.size() < 3) {
+                sessionParticipants.add(new SessionParticipantResponse(
+                    sp.getUser().getUserId(),
+                    sp.getUser().getName(),
+                    sp.getUser().getImage(),
+                    sp.getUser().getIntroduction(),
+                    role,
+                    sp.getJoinedAt()
+                ));
+            }
+        }
+
+        List<ParticipatingSessionResponse> enrichedContent = sessions.getContent().stream()
+            .map(session -> session.withParticipants(
+                participantsBySessionId.getOrDefault(session.id(), List.of())
+            ))
+            .toList();
+
+        return new SliceImpl<>(enrichedContent, pageable, sessions.hasNext());
+    }
+
+    private Map<String, CrewRole> buildMembershipRoleMap(
+        List<SessionParticipant> participants,
+        Map<Long, Long> sessionCrewMap
+    ) {
+        Map<String, CrewRole> roleMap = new HashMap<>();
+
+        for (SessionParticipant sp : participants) {
+            Long sessionId = sp.getSession().getId();
+            Long crewId = sessionCrewMap.get(sessionId);
+            Long visitorUserId = sp.getUser().getUserId();
+            String key = visitorUserId + "_" + crewId;
+
+            if (!roleMap.containsKey(key)) {
+                CrewRole role = membershipRepository.findByUserUserIdAndCrewId(visitorUserId, crewId)
+                    .map(Membership::getRole)
+                    .orElse(CrewRole.MEMBER);
+                roleMap.put(key, role);
+            }
+        }
+
+        return roleMap;
     }
 
     private User findUserById(Long userId) {

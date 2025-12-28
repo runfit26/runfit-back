@@ -12,12 +12,16 @@ import com.runfit.domain.crew.repository.MembershipRepository;
 import com.runfit.domain.review.controller.dto.response.ReviewResponse;
 import com.runfit.domain.review.service.ReviewService;
 import com.runfit.domain.session.controller.dto.response.CoordsResponse;
+import com.runfit.domain.session.controller.dto.response.SessionParticipantResponse;
 import com.runfit.domain.user.controller.dto.response.ParticipatingSessionResponse;
+import com.runfit.domain.session.entity.Session;
 import com.runfit.domain.session.entity.SessionLevel;
+import com.runfit.domain.session.entity.SessionParticipant;
 import com.runfit.domain.session.entity.SessionStatus;
 import com.runfit.domain.session.repository.SessionLikeRepository;
 import com.runfit.domain.session.repository.SessionParticipantRepository;
 import com.runfit.domain.session.repository.SessionRepository;
+import com.runfit.domain.crew.entity.Membership;
 import com.runfit.domain.user.controller.dto.request.UserUpdateRequest;
 import com.runfit.domain.user.controller.dto.response.LikedSessionResponse;
 import com.runfit.domain.user.controller.dto.response.MyCrewResponse;
@@ -28,6 +32,7 @@ import com.runfit.domain.user.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import org.mockito.Mockito;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -546,6 +551,8 @@ class UserServiceTest {
 
             given(sessionParticipantRepository.findParticipatingSessionsByUserId(userId, null, pageable))
                 .willReturn(mockSlice);
+            given(sessionParticipantRepository.findParticipantsBySessionIds(List.of(1L)))
+                .willReturn(List.of());
 
             // when
             Slice<ParticipatingSessionResponse> result = userService.getMyParticipatingSessions(userId, null, pageable);
@@ -579,6 +586,8 @@ class UserServiceTest {
 
             given(sessionParticipantRepository.findParticipatingSessionsByUserId(userId, status, pageable))
                 .willReturn(mockSlice);
+            given(sessionParticipantRepository.findParticipantsBySessionIds(List.of(1L)))
+                .willReturn(List.of());
 
             // when
             Slice<ParticipatingSessionResponse> result = userService.getMyParticipatingSessions(userId, status, pageable);
@@ -611,6 +620,8 @@ class UserServiceTest {
 
             given(sessionParticipantRepository.findParticipatingSessionsByUserId(userId, status, pageable))
                 .willReturn(mockSlice);
+            given(sessionParticipantRepository.findParticipantsBySessionIds(List.of(2L)))
+                .willReturn(List.of());
 
             // when
             Slice<ParticipatingSessionResponse> result = userService.getMyParticipatingSessions(userId, status, pageable);
@@ -638,6 +649,204 @@ class UserServiceTest {
             // then
             assertThat(result.getContent()).isEmpty();
             assertThat(result.hasNext()).isFalse();
+        }
+
+        @Test
+        @DisplayName("성공 - participants 목록이 올바르게 채워짐")
+        void success_withParticipants() {
+            // given
+            Long userId = 1L;
+            Long sessionId = 1L;
+            Long crewId = 1L;
+            PageRequest pageable = PageRequest.of(0, 10);
+
+            ParticipatingSessionResponse session = new ParticipatingSessionResponse(
+                sessionId, crewId, 2L, "러닝 세션", null, "서울", "강남구", null,
+                new CoordsResponse(37.4979, 127.0276),
+                LocalDateTime.now().plusDays(7), LocalDateTime.now().plusDays(6),
+                SessionLevel.BEGINNER, SessionStatus.OPEN, 390, 20, 3L, false, LocalDateTime.now(),
+                null, false,
+                List.of()
+            );
+
+            Slice<ParticipatingSessionResponse> mockSlice = new SliceImpl<>(
+                List.of(session), pageable, false
+            );
+
+            // Mock 참여자 생성
+            User participant1 = Mockito.mock(User.class);
+            given(participant1.getUserId()).willReturn(10L);
+            given(participant1.getName()).willReturn("참여자1");
+            given(participant1.getImage()).willReturn("image1.jpg");
+            given(participant1.getIntroduction()).willReturn("소개1");
+
+            User participant2 = Mockito.mock(User.class);
+            given(participant2.getUserId()).willReturn(11L);
+            given(participant2.getName()).willReturn("참여자2");
+            given(participant2.getImage()).willReturn("image2.jpg");
+            given(participant2.getIntroduction()).willReturn("소개2");
+
+            Session mockSession = Mockito.mock(Session.class);
+            given(mockSession.getId()).willReturn(sessionId);
+
+            SessionParticipant sp1 = Mockito.mock(SessionParticipant.class);
+            given(sp1.getSession()).willReturn(mockSession);
+            given(sp1.getUser()).willReturn(participant1);
+            given(sp1.getJoinedAt()).willReturn(LocalDateTime.now());
+
+            SessionParticipant sp2 = Mockito.mock(SessionParticipant.class);
+            given(sp2.getSession()).willReturn(mockSession);
+            given(sp2.getUser()).willReturn(participant2);
+            given(sp2.getJoinedAt()).willReturn(LocalDateTime.now());
+
+            Membership membership1 = Mockito.mock(Membership.class);
+            given(membership1.getRole()).willReturn(CrewRole.LEADER);
+
+            Membership membership2 = Mockito.mock(Membership.class);
+            given(membership2.getRole()).willReturn(CrewRole.MEMBER);
+
+            given(sessionParticipantRepository.findParticipatingSessionsByUserId(userId, null, pageable))
+                .willReturn(mockSlice);
+            given(sessionParticipantRepository.findParticipantsBySessionIds(List.of(sessionId)))
+                .willReturn(List.of(sp1, sp2));
+            given(membershipRepository.findByUserUserIdAndCrewId(10L, crewId))
+                .willReturn(Optional.of(membership1));
+            given(membershipRepository.findByUserUserIdAndCrewId(11L, crewId))
+                .willReturn(Optional.of(membership2));
+
+            // when
+            Slice<ParticipatingSessionResponse> result = userService.getMyParticipatingSessions(userId, null, pageable);
+
+            // then
+            assertThat(result.getContent()).hasSize(1);
+            List<SessionParticipantResponse> participants = result.getContent().get(0).participants();
+            assertThat(participants).hasSize(2);
+            assertThat(participants.get(0).userId()).isEqualTo(10L);
+            assertThat(participants.get(0).name()).isEqualTo("참여자1");
+            assertThat(participants.get(0).role()).isEqualTo(CrewRole.LEADER);
+            assertThat(participants.get(1).userId()).isEqualTo(11L);
+            assertThat(participants.get(1).name()).isEqualTo("참여자2");
+            assertThat(participants.get(1).role()).isEqualTo(CrewRole.MEMBER);
+        }
+
+        @Test
+        @DisplayName("성공 - participants는 최대 3명까지만 포함")
+        void success_participantsLimitedToThree() {
+            // given
+            Long userId = 1L;
+            Long sessionId = 1L;
+            Long crewId = 1L;
+            PageRequest pageable = PageRequest.of(0, 10);
+
+            ParticipatingSessionResponse session = new ParticipatingSessionResponse(
+                sessionId, crewId, 2L, "러닝 세션", null, "서울", "강남구", null,
+                new CoordsResponse(37.4979, 127.0276),
+                LocalDateTime.now().plusDays(7), LocalDateTime.now().plusDays(6),
+                SessionLevel.BEGINNER, SessionStatus.OPEN, 390, 20, 5L, false, LocalDateTime.now(),
+                null, false,
+                List.of()
+            );
+
+            Slice<ParticipatingSessionResponse> mockSlice = new SliceImpl<>(
+                List.of(session), pageable, false
+            );
+
+            Session mockSession = Mockito.mock(Session.class);
+            given(mockSession.getId()).willReturn(sessionId);
+
+            // 5명의 참여자 생성 (처음 3명만 실제로 사용됨)
+            List<SessionParticipant> participants = new java.util.ArrayList<>();
+            for (int i = 1; i <= 5; i++) {
+                User user = Mockito.mock(User.class);
+                SessionParticipant sp = Mockito.mock(SessionParticipant.class);
+                given(sp.getSession()).willReturn(mockSession);
+                given(sp.getUser()).willReturn(user);
+
+                // 처음 3명만 실제로 처리되므로 3명에 대해서만 상세 mock 설정
+                if (i <= 3) {
+                    given(user.getUserId()).willReturn((long) i);
+                    given(user.getName()).willReturn("참여자" + i);
+                    given(user.getImage()).willReturn("image" + i + ".jpg");
+                    given(user.getIntroduction()).willReturn("소개" + i);
+                    given(sp.getJoinedAt()).willReturn(LocalDateTime.now());
+
+                    Membership membership = Mockito.mock(Membership.class);
+                    given(membership.getRole()).willReturn(CrewRole.MEMBER);
+                    given(membershipRepository.findByUserUserIdAndCrewId((long) i, crewId))
+                        .willReturn(Optional.of(membership));
+                }
+
+                participants.add(sp);
+            }
+
+            given(sessionParticipantRepository.findParticipatingSessionsByUserId(userId, null, pageable))
+                .willReturn(mockSlice);
+            given(sessionParticipantRepository.findParticipantsBySessionIds(List.of(sessionId)))
+                .willReturn(participants);
+
+            // when
+            Slice<ParticipatingSessionResponse> result = userService.getMyParticipatingSessions(userId, null, pageable);
+
+            // then
+            assertThat(result.getContent()).hasSize(1);
+            List<SessionParticipantResponse> resultParticipants = result.getContent().get(0).participants();
+            assertThat(resultParticipants).hasSize(3);
+            assertThat(resultParticipants.get(0).name()).isEqualTo("참여자1");
+            assertThat(resultParticipants.get(1).name()).isEqualTo("참여자2");
+            assertThat(resultParticipants.get(2).name()).isEqualTo("참여자3");
+        }
+
+        @Test
+        @DisplayName("성공 - 멤버십이 없는 참여자는 MEMBER role로 처리")
+        void success_noMembershipDefaultsToMember() {
+            // given
+            Long userId = 1L;
+            Long sessionId = 1L;
+            Long crewId = 1L;
+            PageRequest pageable = PageRequest.of(0, 10);
+
+            ParticipatingSessionResponse session = new ParticipatingSessionResponse(
+                sessionId, crewId, 2L, "러닝 세션", null, "서울", "강남구", null,
+                new CoordsResponse(37.4979, 127.0276),
+                LocalDateTime.now().plusDays(7), LocalDateTime.now().plusDays(6),
+                SessionLevel.BEGINNER, SessionStatus.OPEN, 390, 20, 1L, false, LocalDateTime.now(),
+                null, false,
+                List.of()
+            );
+
+            Slice<ParticipatingSessionResponse> mockSlice = new SliceImpl<>(
+                List.of(session), pageable, false
+            );
+
+            User participant = Mockito.mock(User.class);
+            given(participant.getUserId()).willReturn(10L);
+            given(participant.getName()).willReturn("참여자");
+            given(participant.getImage()).willReturn("image.jpg");
+            given(participant.getIntroduction()).willReturn("소개");
+
+            Session mockSession = Mockito.mock(Session.class);
+            given(mockSession.getId()).willReturn(sessionId);
+
+            SessionParticipant sp = Mockito.mock(SessionParticipant.class);
+            given(sp.getSession()).willReturn(mockSession);
+            given(sp.getUser()).willReturn(participant);
+            given(sp.getJoinedAt()).willReturn(LocalDateTime.now());
+
+            given(sessionParticipantRepository.findParticipatingSessionsByUserId(userId, null, pageable))
+                .willReturn(mockSlice);
+            given(sessionParticipantRepository.findParticipantsBySessionIds(List.of(sessionId)))
+                .willReturn(List.of(sp));
+            given(membershipRepository.findByUserUserIdAndCrewId(10L, crewId))
+                .willReturn(Optional.empty());
+
+            // when
+            Slice<ParticipatingSessionResponse> result = userService.getMyParticipatingSessions(userId, null, pageable);
+
+            // then
+            assertThat(result.getContent()).hasSize(1);
+            List<SessionParticipantResponse> participants = result.getContent().get(0).participants();
+            assertThat(participants).hasSize(1);
+            assertThat(participants.get(0).role()).isEqualTo(CrewRole.MEMBER);
         }
     }
 }

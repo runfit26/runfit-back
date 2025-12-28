@@ -102,7 +102,7 @@ public class SessionParticipantRepositoryCustomImpl implements SessionParticipan
                 statusFilter(status),
                 isHostOrParticipant(userId, participantCheck)
             )
-            .orderBy(session.sessionAt.desc())
+            .orderBy(session.sessionAt.asc())
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize() + 1)
             .fetch();

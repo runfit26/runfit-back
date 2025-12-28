@@ -384,8 +384,8 @@ class SessionParticipantRepositoryCustomTest {
         }
 
         @Test
-        @DisplayName("성공 - sessionAt 내림차순 정렬")
-        void success_sortBySessionAtDesc() {
+        @DisplayName("성공 - sessionAt 오름차순 정렬")
+        void success_sortBySessionAtAsc() {
             // given
             Session session1 = sessionRepository.save(Session.create(
                 crew, user1, "먼저 예정된 세션", "설명", null,
@@ -410,9 +410,9 @@ class SessionParticipantRepositoryCustomTest {
 
             // then
             assertThat(result.getContent()).hasSize(2);
-            // sessionAt 내림차순이므로 나중에 예정된 세션이 먼저
-            assertThat(result.getContent().get(0).name()).isEqualTo("나중에 예정된 세션");
-            assertThat(result.getContent().get(1).name()).isEqualTo("먼저 예정된 세션");
+            // sessionAt 오름차순이므로 먼저 예정된 세션이 먼저
+            assertThat(result.getContent().get(0).name()).isEqualTo("먼저 예정된 세션");
+            assertThat(result.getContent().get(1).name()).isEqualTo("나중에 예정된 세션");
         }
 
         @Test

@@ -14,6 +14,7 @@ import com.runfit.domain.crew.controller.dto.request.CrewSearchCondition;
 import com.runfit.domain.crew.controller.dto.response.CrewListResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.util.CollectionUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
@@ -42,7 +43,7 @@ public class CrewRepositoryCustomImpl implements CrewRepositoryCustom {
             .leftJoin(membership).on(membership.crew.eq(crew))
             .where(
                 isNotDeleted(),
-                cityEq(condition.city()),
+                cityIn(condition.city()),
                 keywordContains(condition.keyword())
             )
             .groupBy(crew.id)
@@ -63,8 +64,8 @@ public class CrewRepositoryCustomImpl implements CrewRepositoryCustom {
         return crew.deleted.isNull();
     }
 
-    private BooleanExpression cityEq(String city) {
-        return StringUtils.hasText(city) ? crew.city.eq(city) : null;
+    private BooleanExpression cityIn(List<String> cities) {
+        return CollectionUtils.isEmpty(cities) ? null : crew.city.in(cities);
     }
 
     private BooleanExpression keywordContains(String keyword) {
