@@ -132,6 +132,11 @@ class SessionServiceTest {
                 ReflectionTestUtils.setField(saved, "id", 1L);
                 return saved;
             });
+            given(sessionParticipantRepository.save(any(SessionParticipant.class))).willAnswer(invocation -> {
+                SessionParticipant saved = invocation.getArgument(0);
+                ReflectionTestUtils.setField(saved, "id", 1L);
+                return saved;
+            });
 
             // when
             SessionResponse response = sessionService.createSession(1L, request);
@@ -140,6 +145,38 @@ class SessionServiceTest {
             assertThat(response.name()).isEqualTo("한강 야간 러닝");
             assertThat(response.crewId()).isEqualTo(1L);
             assertThat(response.hostUserId()).isEqualTo(1L);
+            assertThat(response.currentParticipantCount()).isEqualTo(1L);
+        }
+
+        @Test
+        @DisplayName("성공 - 생성자가 자동으로 세션 참여자로 등록됨")
+        void success_creatorAutoJoined() {
+            // given
+            SessionCreateRequest request = new SessionCreateRequest(
+                1L, "한강 야간 러닝", "설명", null,
+                "서울", "송파구", null, new Coords(37.5145, 127.1017),
+                LocalDateTime.now().plusDays(7), LocalDateTime.now().plusDays(6),
+                SessionLevel.BEGINNER, 20, 390
+            );
+            given(userRepository.findById(1L)).willReturn(Optional.of(hostUser));
+            given(crewRepository.findByIdAndDeletedIsNull(1L)).willReturn(Optional.of(crew));
+            given(membershipRepository.findByUserUserIdAndCrewId(1L, 1L)).willReturn(Optional.of(staffMembership));
+            given(sessionRepository.save(any(Session.class))).willAnswer(invocation -> {
+                Session saved = invocation.getArgument(0);
+                ReflectionTestUtils.setField(saved, "id", 1L);
+                return saved;
+            });
+            given(sessionParticipantRepository.save(any(SessionParticipant.class))).willAnswer(invocation -> {
+                SessionParticipant saved = invocation.getArgument(0);
+                ReflectionTestUtils.setField(saved, "id", 1L);
+                return saved;
+            });
+
+            // when
+            sessionService.createSession(1L, request);
+
+            // then
+            verify(sessionParticipantRepository).save(any(SessionParticipant.class));
         }
 
         @Test

@@ -75,7 +75,11 @@ public class SessionService {
 
         Session savedSession = sessionRepository.save(session);
 
-        return SessionResponse.from(savedSession, 0L);
+        // 세션 생성자를 자동으로 참여시킴
+        SessionParticipant participant = SessionParticipant.create(savedSession, user);
+        sessionParticipantRepository.save(participant);
+
+        return SessionResponse.from(savedSession, 1L);
     }
 
     @Transactional(readOnly = true)
