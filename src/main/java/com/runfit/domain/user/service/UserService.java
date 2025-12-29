@@ -9,12 +9,12 @@ import com.runfit.domain.crew.repository.MembershipRepository;
 import com.runfit.domain.review.controller.dto.response.ReviewResponse;
 import com.runfit.domain.review.service.ReviewService;
 import com.runfit.domain.session.controller.dto.response.SessionListResponse;
+import com.runfit.domain.session.service.SessionService;
 import com.runfit.domain.session.controller.dto.response.SessionParticipantResponse;
 import com.runfit.domain.session.entity.SessionParticipant;
 import com.runfit.domain.user.controller.dto.response.ParticipatingSessionResponse;
 import com.runfit.domain.session.repository.SessionLikeRepository;
 import com.runfit.domain.session.repository.SessionParticipantRepository;
-import com.runfit.domain.session.repository.SessionRepository;
 import com.runfit.domain.user.controller.dto.request.UserUpdateRequest;
 import com.runfit.domain.user.controller.dto.response.LikedSessionResponse;
 import com.runfit.domain.user.controller.dto.response.MyCrewResponse;
@@ -41,10 +41,10 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final SessionLikeRepository sessionLikeRepository;
-    private final SessionRepository sessionRepository;
     private final SessionParticipantRepository sessionParticipantRepository;
     private final MembershipRepository membershipRepository;
     private final ReviewService reviewService;
+    private final SessionService sessionService;
 
     @Transactional(readOnly = true)
     public UserResponse getMyInfo(Long userId) {
@@ -84,7 +84,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Slice<SessionListResponse> getMyHostedSessions(Long userId, Pageable pageable) {
-        return sessionRepository.findMyHostedSessions(userId, pageable);
+        return sessionService.getMyHostedSessions(userId, pageable);
     }
 
     @Transactional(readOnly = true)
