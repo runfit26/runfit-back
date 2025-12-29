@@ -20,7 +20,8 @@ import com.runfit.domain.session.entity.SessionParticipant;
 import com.runfit.domain.session.entity.SessionStatus;
 import com.runfit.domain.session.repository.SessionLikeRepository;
 import com.runfit.domain.session.repository.SessionParticipantRepository;
-import com.runfit.domain.session.repository.SessionRepository;
+import com.runfit.domain.session.service.SessionService;
+import com.runfit.domain.session.controller.dto.response.SessionListResponse;
 import com.runfit.domain.crew.entity.Membership;
 import com.runfit.domain.user.controller.dto.request.UserUpdateRequest;
 import com.runfit.domain.user.controller.dto.response.LikedSessionResponse;
@@ -59,9 +60,6 @@ class UserServiceTest {
     private SessionLikeRepository sessionLikeRepository;
 
     @Mock
-    private SessionRepository sessionRepository;
-
-    @Mock
     private SessionParticipantRepository sessionParticipantRepository;
 
     @Mock
@@ -69,6 +67,9 @@ class UserServiceTest {
 
     @Mock
     private ReviewService reviewService;
+
+    @Mock
+    private SessionService sessionService;
 
     @Nested
     @DisplayName("내가 찜한 세션 목록 조회")
@@ -518,6 +519,63 @@ class UserServiceTest {
 
             // when
             Slice<MyCrewResponse> result = userService.getMyCrews(userId, pageable);
+
+            // then
+            assertThat(result.getContent()).isEmpty();
+            assertThat(result.hasNext()).isFalse();
+        }
+    }
+
+    @Nested
+    @DisplayName("내가 만든 세션 목록 조회")
+    class GetMyHostedSessions {
+
+        @Test
+        @DisplayName("성공")
+        void success() {
+            // given
+            Long userId = 1L;
+            PageRequest pageable = PageRequest.of(0, 10);
+
+            SessionListResponse session1 = new SessionListResponse(
+                1L, 1L, userId, "한강 야간 러닝", "https://example.com/session1.jpg",
+                "서울", "송파구", null, new CoordsResponse(37.5145, 127.1017),
+                LocalDateTime.now().plusDays(7), LocalDateTime.now().plusDays(6),
+                SessionLevel.BEGINNER, SessionStatus.OPEN, 390, 20, 5L, true, LocalDateTime.now(),
+                4.5, List.of()
+            );
+
+            Slice<SessionListResponse> mockSlice = new SliceImpl<>(
+                List.of(session1), pageable, false
+            );
+
+            given(sessionService.getMyHostedSessions(userId, pageable))
+                .willReturn(mockSlice);
+
+            // when
+            Slice<SessionListResponse> result = userService.getMyHostedSessions(userId, pageable);
+
+            // then
+            assertThat(result.getContent()).hasSize(1);
+            assertThat(result.hasNext()).isFalse();
+            assertThat(result.getContent().get(0).id()).isEqualTo(1L);
+            assertThat(result.getContent().get(0).hostUserId()).isEqualTo(userId);
+        }
+
+        @Test
+        @DisplayName("성공 - 만든 세션 없음")
+        void success_empty() {
+            // given
+            Long userId = 1L;
+            PageRequest pageable = PageRequest.of(0, 10);
+
+            Slice<SessionListResponse> mockSlice = new SliceImpl<>(List.of(), pageable, false);
+
+            given(sessionService.getMyHostedSessions(userId, pageable))
+                .willReturn(mockSlice);
+
+            // when
+            Slice<SessionListResponse> result = userService.getMyHostedSessions(userId, pageable);
 
             // then
             assertThat(result.getContent()).isEmpty();
