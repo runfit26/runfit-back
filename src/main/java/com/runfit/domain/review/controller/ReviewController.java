@@ -57,7 +57,7 @@ public class ReviewController implements ReviewApi {
         @AuthenticationPrincipal AuthUser user,
         @PathVariable Long reviewId
     ) {
-        ReviewDeleteResponse response = reviewService.deleteReview(user.userId(), reviewId);
+        ReviewDeleteResponse response = reviewService.deleteReview(user.userId(), reviewId, user.isAdmin());
         return ResponseEntity.ok(ResponseWrapper.success(response));
     }
 }

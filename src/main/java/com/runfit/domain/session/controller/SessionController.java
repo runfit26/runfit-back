@@ -49,7 +49,7 @@ public class SessionController implements SessionApi {
         @AuthenticationPrincipal AuthUser user,
         @Valid @RequestBody SessionCreateRequest request
     ) {
-        SessionResponse response = sessionService.createSession(user.userId(), request);
+        SessionResponse response = sessionService.createSession(user.userId(), request, user.isAdmin());
         URI location = URI.create("/api/sessions/" + response.id());
         return ResponseEntity.created(location).body(ResponseWrapper.success(response));
     }
@@ -148,7 +148,7 @@ public class SessionController implements SessionApi {
         @PathVariable Long sessionId,
         @Valid @RequestBody SessionUpdateRequest request
     ) {
-        SessionResponse response = sessionService.updateSession(user.userId(), sessionId, request);
+        SessionResponse response = sessionService.updateSession(user.userId(), sessionId, request, user.isAdmin());
         return ResponseEntity.ok(ResponseWrapper.success(response));
     }
 
@@ -158,7 +158,7 @@ public class SessionController implements SessionApi {
         @AuthenticationPrincipal AuthUser user,
         @PathVariable Long sessionId
     ) {
-        sessionService.deleteSession(user.userId(), sessionId);
+        sessionService.deleteSession(user.userId(), sessionId, user.isAdmin());
         return ResponseEntity.ok(ResponseWrapper.success(Map.of("message", "세션이 삭제되었습니다.")));
     }
 }

@@ -5,6 +5,8 @@ import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -47,6 +49,10 @@ public class User extends SoftDeleteEntity {
     @Column(name = "pace")
     private Integer pace; // 단위: second
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    private UserRole role = UserRole.USER;
+
     @ElementCollection
     @CollectionTable(
         name = "user_runnin_styles",
@@ -60,7 +66,12 @@ public class User extends SoftDeleteEntity {
         user.name = name;
         user.email = email;
         user.password = password;
+        user.role = UserRole.USER;
         return user;
+    }
+
+    public boolean isAdmin() {
+        return this.role == UserRole.ADMIN;
     }
 
     public void update(String name, String image, String introduction, String city, Integer pace, List<String> styles) {
