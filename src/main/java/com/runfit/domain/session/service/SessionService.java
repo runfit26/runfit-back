@@ -49,11 +49,11 @@ public class SessionService {
     private final UserRepository userRepository;
 
     @Transactional
-    public SessionResponse createSession(Long userId, SessionCreateRequest request) {
+    public SessionResponse createSession(Long userId, SessionCreateRequest request, boolean isAdmin) {
         User user = findUserById(userId);
         Crew crew = findCrewById(request.crewId());
 
-        validateStaffOrLeaderPermission(userId, request.crewId());
+        validateStaffOrLeaderPermission(userId, request.crewId(), isAdmin);
 
         Session session = Session.create(
             crew,
@@ -172,10 +172,10 @@ public class SessionService {
     }
 
     @Transactional
-    public SessionResponse updateSession(Long userId, Long sessionId, SessionUpdateRequest request) {
+    public SessionResponse updateSession(Long userId, Long sessionId, SessionUpdateRequest request, boolean isAdmin) {
         Session session = findSessionById(sessionId);
 
-        validateStaffOrLeaderPermission(userId, session.getCrew().getId());
+        validateStaffOrLeaderPermission(userId, session.getCrew().getId(), isAdmin);
 
         session.update(
             request.name(),
@@ -239,11 +239,11 @@ public class SessionService {
     }
 
     @Transactional
-    public void deleteSession(Long userId, Long sessionId) {
+    public void deleteSession(Long userId, Long sessionId, boolean isAdmin) {
         Session session = sessionRepository.findByIdWithCrewAndHostUser(sessionId)
             .orElseThrow(() -> new BusinessException(ErrorCode.SESSION_NOT_FOUND));
 
-        if (!session.getHostUser().getUserId().equals(userId)) {
+        if (!isAdmin && !session.getHostUser().getUserId().equals(userId)) {
             throw new BusinessException(ErrorCode.SESSION_DELETE_FORBIDDEN);
         }
 
@@ -271,7 +271,11 @@ public class SessionService {
             .orElseThrow(() -> new BusinessException(ErrorCode.SESSION_NOT_FOUND));
     }
 
-    private void validateStaffOrLeaderPermission(Long userId, Long crewId) {
+    private void validateStaffOrLeaderPermission(Long userId, Long crewId, boolean isAdmin) {
+        if (isAdmin) {
+            return;
+        }
+
         Membership membership = membershipRepository.findByUserUserIdAndCrewId(userId, crewId)
             .orElseThrow(() -> new BusinessException(ErrorCode.MEMBERSHIP_NOT_FOUND));
 

@@ -197,7 +197,7 @@ class ReviewServiceTest {
             given(reviewRepository.findByIdWithSessionAndUser(1L)).willReturn(Optional.of(review));
 
             // when
-            ReviewDeleteResponse response = reviewService.deleteReview(1L, 1L);
+            ReviewDeleteResponse response = reviewService.deleteReview(1L, 1L, false);
 
             // then
             assertThat(response.message()).contains("삭제");
@@ -211,7 +211,7 @@ class ReviewServiceTest {
             given(reviewRepository.findByIdWithSessionAndUser(999L)).willReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> reviewService.deleteReview(1L, 999L))
+            assertThatThrownBy(() -> reviewService.deleteReview(1L, 999L, false))
                 .isInstanceOf(BusinessException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.REVIEW_NOT_FOUND);
         }
@@ -223,7 +223,7 @@ class ReviewServiceTest {
             given(reviewRepository.findByIdWithSessionAndUser(1L)).willReturn(Optional.of(review));
 
             // when & then
-            assertThatThrownBy(() -> reviewService.deleteReview(2L, 1L))
+            assertThatThrownBy(() -> reviewService.deleteReview(2L, 1L, false))
                 .isInstanceOf(BusinessException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.REVIEW_FORBIDDEN);
         }

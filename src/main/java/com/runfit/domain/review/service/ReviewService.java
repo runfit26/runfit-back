@@ -75,11 +75,11 @@ public class ReviewService {
     }
 
     @Transactional
-    public ReviewDeleteResponse deleteReview(Long userId, Long reviewId) {
+    public ReviewDeleteResponse deleteReview(Long userId, Long reviewId, boolean isAdmin) {
         Review review = reviewRepository.findByIdWithSessionAndUser(reviewId)
             .orElseThrow(() -> new BusinessException(ErrorCode.REVIEW_NOT_FOUND));
 
-        if (!review.getUser().getUserId().equals(userId)) {
+        if (!isAdmin && !review.getUser().getUserId().equals(userId)) {
             throw new BusinessException(ErrorCode.REVIEW_FORBIDDEN);
         }
 

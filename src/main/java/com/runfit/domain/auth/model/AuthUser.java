@@ -18,4 +18,8 @@ public record AuthUser(
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + role));
     }
+
+    public boolean isAdmin() {
+        return "ADMIN".equals(role);
+    }
 }

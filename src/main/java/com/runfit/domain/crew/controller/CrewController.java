@@ -88,7 +88,7 @@ public class CrewController implements CrewApi {
         @PathVariable Long crewId,
         @Valid @RequestBody CrewUpdateRequest request
     ) {
-        CrewResponse response = crewService.updateCrew(user.userId(), crewId, request);
+        CrewResponse response = crewService.updateCrew(user.userId(), crewId, request, user.isAdmin());
         return ResponseEntity.ok(ResponseWrapper.success(response));
     }
 
@@ -98,7 +98,7 @@ public class CrewController implements CrewApi {
         @AuthenticationPrincipal AuthUser user,
         @PathVariable Long crewId
     ) {
-        crewService.deleteCrew(user.userId(), crewId);
+        crewService.deleteCrew(user.userId(), crewId, user.isAdmin());
         return ResponseEntity.ok(ResponseWrapper.success("크루가 삭제되었습니다."));
     }
 
@@ -139,7 +139,7 @@ public class CrewController implements CrewApi {
         @PathVariable Long crewId,
         @Valid @RequestBody LeaderChangeRequest request
     ) {
-        LeaderChangeResponse response = crewService.changeLeader(user.userId(), crewId, request);
+        LeaderChangeResponse response = crewService.changeLeader(user.userId(), crewId, request, user.isAdmin());
         return ResponseEntity.ok(ResponseWrapper.success(response));
     }
 
@@ -151,7 +151,7 @@ public class CrewController implements CrewApi {
         @PathVariable Long userId,
         @Valid @RequestBody RoleChangeRequest request
     ) {
-        RoleChangeResponse response = crewService.changeRole(user.userId(), crewId, userId, request);
+        RoleChangeResponse response = crewService.changeRole(user.userId(), crewId, userId, request, user.isAdmin());
         return ResponseEntity.ok(ResponseWrapper.success(response));
     }
 
@@ -162,7 +162,7 @@ public class CrewController implements CrewApi {
         @PathVariable Long crewId,
         @PathVariable Long userId
     ) {
-        crewService.kickMember(user.userId(), crewId, userId);
+        crewService.kickMember(user.userId(), crewId, userId, user.isAdmin());
         return ResponseEntity.ok(ResponseWrapper.success("해당 사용자가 크루에서 제거되었습니다."));
     }
 

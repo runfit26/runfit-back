@@ -26,7 +26,7 @@ public class AccessTokenProvider implements JwtProvider{
     }
 
     @Override
-    public String generateToken(Long userId, String username) {
+    public String generateToken(Long userId, String username, String role) {
         return Jwts
             .builder()
             .header()
@@ -36,7 +36,7 @@ public class AccessTokenProvider implements JwtProvider{
             .subject(userId.toString())
             .claim("tokenType", "access")
             .claim("username", username)
-            .claim("role", "USER")
+            .claim("role", role)
             .issuedAt(new Date())
             .expiration(new Date(System.currentTimeMillis() + accessExpiration))
             .signWith(key)

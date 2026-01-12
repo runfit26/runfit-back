@@ -169,7 +169,7 @@ class CrewServiceTest {
             given(membershipRepository.countByCrewId(1L)).willReturn(3L);
 
             // when
-            CrewResponse response = crewService.updateCrew(1L, 1L, request);
+            CrewResponse response = crewService.updateCrew(1L, 1L, request, false);
 
             // then
             assertThat(response.name()).isEqualTo("수정된 이름");
@@ -186,7 +186,7 @@ class CrewServiceTest {
             given(membershipRepository.findByUserUserIdAndCrewId(2L, 1L)).willReturn(Optional.of(memberMembership));
 
             // when & then
-            assertThatThrownBy(() -> crewService.updateCrew(2L, 1L, request))
+            assertThatThrownBy(() -> crewService.updateCrew(2L, 1L, request, false))
                 .isInstanceOf(BusinessException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.CREW_ROLE_FORBIDDEN);
         }
@@ -278,10 +278,11 @@ class CrewServiceTest {
             LeaderChangeRequest request = new LeaderChangeRequest(2L);
             given(crewRepository.findByIdAndDeletedIsNull(1L)).willReturn(Optional.of(crew));
             given(membershipRepository.findByUserUserIdAndCrewId(1L, 1L)).willReturn(Optional.of(leaderMembership));
+            given(membershipRepository.findByCrewIdAndRole(1L, CrewRole.LEADER)).willReturn(Optional.of(leaderMembership));
             given(membershipRepository.findByUserUserIdAndCrewId(2L, 1L)).willReturn(Optional.of(memberMembership));
 
             // when
-            LeaderChangeResponse response = crewService.changeLeader(1L, 1L, request);
+            LeaderChangeResponse response = crewService.changeLeader(1L, 1L, request, false);
 
             // then
             assertThat(response.oldLeaderId()).isEqualTo(1L);
@@ -297,10 +298,11 @@ class CrewServiceTest {
             LeaderChangeRequest request = new LeaderChangeRequest(999L);
             given(crewRepository.findByIdAndDeletedIsNull(1L)).willReturn(Optional.of(crew));
             given(membershipRepository.findByUserUserIdAndCrewId(1L, 1L)).willReturn(Optional.of(leaderMembership));
+            given(membershipRepository.findByCrewIdAndRole(1L, CrewRole.LEADER)).willReturn(Optional.of(leaderMembership));
             given(membershipRepository.findByUserUserIdAndCrewId(999L, 1L)).willReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> crewService.changeLeader(1L, 1L, request))
+            assertThatThrownBy(() -> crewService.changeLeader(1L, 1L, request, false))
                 .isInstanceOf(BusinessException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.MEMBERSHIP_NOT_FOUND);
         }
@@ -320,7 +322,7 @@ class CrewServiceTest {
             given(membershipRepository.findByUserUserIdAndCrewId(2L, 1L)).willReturn(Optional.of(memberMembership));
 
             // when
-            RoleChangeResponse response = crewService.changeRole(1L, 1L, 2L, request);
+            RoleChangeResponse response = crewService.changeRole(1L, 1L, 2L, request, false);
 
             // then
             assertThat(response.newRole()).isEqualTo(CrewRole.STAFF);
@@ -337,7 +339,7 @@ class CrewServiceTest {
             given(membershipRepository.findByUserUserIdAndCrewId(1L, 1L)).willReturn(Optional.of(leaderMembership));
 
             // when & then
-            assertThatThrownBy(() -> crewService.changeRole(1L, 1L, 1L, request))
+            assertThatThrownBy(() -> crewService.changeRole(1L, 1L, 1L, request, false))
                 .isInstanceOf(BusinessException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.CREW_ROLE_FORBIDDEN);
         }
@@ -469,7 +471,7 @@ class CrewServiceTest {
             given(membershipRepository.findByUserUserIdAndCrewId(2L, 1L)).willReturn(Optional.of(memberMembership));
 
             // when
-            crewService.kickMember(1L, 1L, 2L);
+            crewService.kickMember(1L, 1L, 2L, false);
 
             // then
             verify(membershipRepository).delete(memberMembership);
@@ -483,7 +485,7 @@ class CrewServiceTest {
             given(membershipRepository.findByUserUserIdAndCrewId(2L, 1L)).willReturn(Optional.of(memberMembership));
 
             // when & then
-            assertThatThrownBy(() -> crewService.kickMember(2L, 1L, 1L))
+            assertThatThrownBy(() -> crewService.kickMember(2L, 1L, 1L, false))
                 .isInstanceOf(BusinessException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.CREW_ROLE_FORBIDDEN);
         }
@@ -496,7 +498,7 @@ class CrewServiceTest {
             given(membershipRepository.findByUserUserIdAndCrewId(1L, 1L)).willReturn(Optional.of(leaderMembership));
 
             // when & then
-            assertThatThrownBy(() -> crewService.kickMember(1L, 1L, 1L))
+            assertThatThrownBy(() -> crewService.kickMember(1L, 1L, 1L, false))
                 .isInstanceOf(BusinessException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.CREW_ROLE_FORBIDDEN);
         }
@@ -510,7 +512,7 @@ class CrewServiceTest {
             given(membershipRepository.findByUserUserIdAndCrewId(999L, 1L)).willReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> crewService.kickMember(1L, 1L, 999L))
+            assertThatThrownBy(() -> crewService.kickMember(1L, 1L, 999L, false))
                 .isInstanceOf(BusinessException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.MEMBERSHIP_NOT_FOUND);
         }
@@ -528,7 +530,7 @@ class CrewServiceTest {
             given(membershipRepository.findByUserUserIdAndCrewId(1L, 1L)).willReturn(Optional.of(leaderMembership));
 
             // when
-            crewService.deleteCrew(1L, 1L);
+            crewService.deleteCrew(1L, 1L, false);
 
             // then
             assertThat(crew.getDeleted()).isNotNull();
@@ -542,7 +544,7 @@ class CrewServiceTest {
             given(membershipRepository.findByUserUserIdAndCrewId(2L, 1L)).willReturn(Optional.of(memberMembership));
 
             // when & then
-            assertThatThrownBy(() -> crewService.deleteCrew(2L, 1L))
+            assertThatThrownBy(() -> crewService.deleteCrew(2L, 1L, false))
                 .isInstanceOf(BusinessException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.CREW_ROLE_FORBIDDEN);
         }
@@ -554,7 +556,7 @@ class CrewServiceTest {
             given(crewRepository.findByIdAndDeletedIsNull(999L)).willReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> crewService.deleteCrew(1L, 999L))
+            assertThatThrownBy(() -> crewService.deleteCrew(1L, 999L, false))
                 .isInstanceOf(BusinessException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.CREW_NOT_FOUND);
         }

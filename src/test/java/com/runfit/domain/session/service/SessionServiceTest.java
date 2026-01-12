@@ -139,7 +139,7 @@ class SessionServiceTest {
             });
 
             // when
-            SessionResponse response = sessionService.createSession(1L, request);
+            SessionResponse response = sessionService.createSession(1L, request, false);
 
             // then
             assertThat(response.name()).isEqualTo("한강 야간 러닝");
@@ -173,7 +173,7 @@ class SessionServiceTest {
             });
 
             // when
-            sessionService.createSession(1L, request);
+            sessionService.createSession(1L, request, false);
 
             // then
             verify(sessionParticipantRepository).save(any(SessionParticipant.class));
@@ -194,7 +194,7 @@ class SessionServiceTest {
             given(membershipRepository.findByUserUserIdAndCrewId(2L, 1L)).willReturn(Optional.of(memberMembership));
 
             // when & then
-            assertThatThrownBy(() -> sessionService.createSession(2L, request))
+            assertThatThrownBy(() -> sessionService.createSession(2L, request, false))
                 .isInstanceOf(BusinessException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.CREW_ROLE_FORBIDDEN);
         }
@@ -213,7 +213,7 @@ class SessionServiceTest {
             given(crewRepository.findByIdAndDeletedIsNull(999L)).willReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> sessionService.createSession(1L, request))
+            assertThatThrownBy(() -> sessionService.createSession(1L, request, false))
                 .isInstanceOf(BusinessException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.CREW_NOT_FOUND);
         }
@@ -635,7 +635,7 @@ class SessionServiceTest {
             given(sessionParticipantRepository.countBySession(session)).willReturn(5L);
 
             // when
-            SessionResponse response = sessionService.updateSession(1L, 1L, updateRequest);
+            SessionResponse response = sessionService.updateSession(1L, 1L, updateRequest, false);
 
             // then
             assertThat(response.name()).isEqualTo("수정된 세션명");
@@ -654,7 +654,7 @@ class SessionServiceTest {
             given(sessionParticipantRepository.countBySession(session)).willReturn(3L);
 
             // when
-            SessionResponse response = sessionService.updateSession(1L, 1L, updateRequest);
+            SessionResponse response = sessionService.updateSession(1L, 1L, updateRequest, false);
 
             // then
             assertThat(response.name()).isEqualTo("수정된 세션명");
@@ -669,7 +669,7 @@ class SessionServiceTest {
             given(membershipRepository.findByUserUserIdAndCrewId(2L, 1L)).willReturn(Optional.of(memberMembership));
 
             // when & then
-            assertThatThrownBy(() -> sessionService.updateSession(2L, 1L, updateRequest))
+            assertThatThrownBy(() -> sessionService.updateSession(2L, 1L, updateRequest, false))
                 .isInstanceOf(BusinessException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.CREW_ROLE_FORBIDDEN);
         }
@@ -681,7 +681,7 @@ class SessionServiceTest {
             given(sessionRepository.findByIdAndNotDeleted(999L)).willReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> sessionService.updateSession(1L, 999L, updateRequest))
+            assertThatThrownBy(() -> sessionService.updateSession(1L, 999L, updateRequest, false))
                 .isInstanceOf(BusinessException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.SESSION_NOT_FOUND);
         }
@@ -694,7 +694,7 @@ class SessionServiceTest {
             given(membershipRepository.findByUserUserIdAndCrewId(999L, 1L)).willReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> sessionService.updateSession(999L, 1L, updateRequest))
+            assertThatThrownBy(() -> sessionService.updateSession(999L, 1L, updateRequest, false))
                 .isInstanceOf(BusinessException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.MEMBERSHIP_NOT_FOUND);
         }
@@ -711,7 +711,7 @@ class SessionServiceTest {
             given(sessionRepository.findByIdWithCrewAndHostUser(1L)).willReturn(Optional.of(session));
 
             // when
-            sessionService.deleteSession(1L, 1L);
+            sessionService.deleteSession(1L, 1L, false);
 
             // then
             assertThat(session.isDeleted()).isTrue();
@@ -724,7 +724,7 @@ class SessionServiceTest {
             given(sessionRepository.findByIdWithCrewAndHostUser(999L)).willReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> sessionService.deleteSession(1L, 999L))
+            assertThatThrownBy(() -> sessionService.deleteSession(1L, 999L, false))
                 .isInstanceOf(BusinessException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.SESSION_NOT_FOUND);
         }
@@ -736,7 +736,7 @@ class SessionServiceTest {
             given(sessionRepository.findByIdWithCrewAndHostUser(1L)).willReturn(Optional.of(session));
 
             // when & then
-            assertThatThrownBy(() -> sessionService.deleteSession(2L, 1L))
+            assertThatThrownBy(() -> sessionService.deleteSession(2L, 1L, false))
                 .isInstanceOf(BusinessException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.SESSION_DELETE_FORBIDDEN);
         }

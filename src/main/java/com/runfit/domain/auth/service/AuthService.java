@@ -54,8 +54,9 @@ public class AuthService {
             throw new BusinessException(ErrorCode.INVALID_CREDENTIALS);
         }
 
-        String accessToken = accessTokenProvider.generateToken(user.getUserId(), user.getName());
-        String refreshToken = refreshTokenProvider.generateToken(user.getUserId(), user.getName());
+        String roleString = user.getRole().name();
+        String accessToken = accessTokenProvider.generateToken(user.getUserId(), user.getName(), roleString);
+        String refreshToken = refreshTokenProvider.generateToken(user.getUserId(), user.getName(), roleString);
 
         return new String[]{accessToken, refreshToken};
     }
@@ -81,9 +82,10 @@ public class AuthService {
         Claims claims = refreshTokenProvider.getClaims(refreshToken);
         Long userId = Long.valueOf(claims.getSubject());
         String username = claims.get("username", String.class);
+        String role = claims.get("role", String.class);
 
-        String newAccessToken = accessTokenProvider.generateToken(userId, username);
-        String newRefreshToken = refreshTokenProvider.generateToken(userId, username);
+        String newAccessToken = accessTokenProvider.generateToken(userId, username, role);
+        String newRefreshToken = refreshTokenProvider.generateToken(userId, username, role);
 
         return new String[]{newAccessToken, newRefreshToken};
     }

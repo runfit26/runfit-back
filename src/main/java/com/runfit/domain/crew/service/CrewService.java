@@ -76,9 +76,9 @@ public class CrewService {
     }
 
     @Transactional
-    public CrewResponse updateCrew(Long userId, Long crewId, CrewUpdateRequest request) {
+    public CrewResponse updateCrew(Long userId, Long crewId, CrewUpdateRequest request, boolean isAdmin) {
         Crew crew = findCrewById(crewId);
-        validateLeaderPermission(userId, crewId);
+        validateLeaderPermission(userId, crewId, isAdmin);
 
         crew.update(
             request.name(),
@@ -92,9 +92,9 @@ public class CrewService {
     }
 
     @Transactional
-    public void deleteCrew(Long userId, Long crewId) {
+    public void deleteCrew(Long userId, Long crewId, boolean isAdmin) {
         Crew crew = findCrewById(crewId);
-        validateLeaderPermission(userId, crewId);
+        validateLeaderPermission(userId, crewId, isAdmin);
 
         crew.delete();
     }
@@ -142,11 +142,11 @@ public class CrewService {
     }
 
     @Transactional
-    public LeaderChangeResponse changeLeader(Long userId, Long crewId, LeaderChangeRequest request) {
+    public LeaderChangeResponse changeLeader(Long userId, Long crewId, LeaderChangeRequest request, boolean isAdmin) {
         findCrewById(crewId);
-        validateLeaderPermission(userId, crewId);
+        validateLeaderPermission(userId, crewId, isAdmin);
 
-        Membership currentLeader = membershipRepository.findByUserUserIdAndCrewId(userId, crewId)
+        Membership currentLeader = membershipRepository.findByCrewIdAndRole(crewId, CrewRole.LEADER)
             .orElseThrow(() -> new BusinessException(ErrorCode.MEMBERSHIP_NOT_FOUND));
 
         Membership newLeader = membershipRepository.findByUserUserIdAndCrewId(request.newLeaderId(), crewId)
@@ -155,13 +155,13 @@ public class CrewService {
         currentLeader.changeRole(CrewRole.MEMBER);
         newLeader.changeRole(CrewRole.LEADER);
 
-        return LeaderChangeResponse.of(userId, request.newLeaderId());
+        return LeaderChangeResponse.of(currentLeader.getUser().getUserId(), request.newLeaderId());
     }
 
     @Transactional
-    public RoleChangeResponse changeRole(Long userId, Long crewId, Long targetUserId, RoleChangeRequest request) {
+    public RoleChangeResponse changeRole(Long userId, Long crewId, Long targetUserId, RoleChangeRequest request, boolean isAdmin) {
         findCrewById(crewId);
-        validateLeaderPermission(userId, crewId);
+        validateLeaderPermission(userId, crewId, isAdmin);
 
         Membership targetMembership = membershipRepository.findByUserUserIdAndCrewId(targetUserId, crewId)
             .orElseThrow(() -> new BusinessException(ErrorCode.MEMBERSHIP_NOT_FOUND));
@@ -177,9 +177,9 @@ public class CrewService {
     }
 
     @Transactional
-    public void kickMember(Long userId, Long crewId, Long targetUserId) {
+    public void kickMember(Long userId, Long crewId, Long targetUserId, boolean isAdmin) {
         findCrewById(crewId);
-        validateLeaderPermission(userId, crewId);
+        validateLeaderPermission(userId, crewId, isAdmin);
 
         Membership targetMembership = membershipRepository.findByUserUserIdAndCrewId(targetUserId, crewId)
             .orElseThrow(() -> new BusinessException(ErrorCode.MEMBERSHIP_NOT_FOUND));
@@ -229,7 +229,11 @@ public class CrewService {
             .orElseThrow(() -> new BusinessException(ErrorCode.CREW_NOT_FOUND));
     }
 
-    private void validateLeaderPermission(Long userId, Long crewId) {
+    private void validateLeaderPermission(Long userId, Long crewId, boolean isAdmin) {
+        if (isAdmin) {
+            return;
+        }
+
         Membership membership = membershipRepository.findByUserUserIdAndCrewId(userId, crewId)
             .orElseThrow(() -> new BusinessException(ErrorCode.MEMBERSHIP_NOT_FOUND));
 
